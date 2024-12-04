@@ -1,0 +1,102 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Blog</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa; /* Light gray background for the page */
+        }
+
+        .navbar {
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Adds a shadow to the navbar */
+            background-color: #ffffff; /* White navbar background */
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem; 
+            font-weight: bold;
+            color: #0d6efd;
+        }
+
+        .navbar-brand:hover {
+            color: #0a58ca; /* Slightly darker on hover */
+        }
+
+        .nav-link {
+            color: #495057; /* Neutral dark color */
+        }
+
+        .nav-link.active, .nav-link:hover {
+            color: #0d6efd; 
+            font-weight: bold;
+        }
+
+        .btn {
+            border-radius: 20px; /* Rounded buttons */
+        }
+
+        .dropdown-menu {
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.15); /* Adds a shadow to dropdown */
+        }
+
+        .welcome-message {
+            font-weight: bold;
+            color: #6c757d; /* Neutral gray */
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Library</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="{% url 'home_path' %}">Home</a>
+                        </li>
+                       
+            
+                        <li class="nav-item">
+                            <a class="nav-link disabled" aria-disabled="true">Disabled</a>
+                        </li>
+                        {% comment %} <li class="nav-item"> {% endcomment %}
+                            {% comment %} <a href="{% url 'password_change' %}" class="nav-link">
+                                <button class="btn btn-outline-primary">Change Password</button>
+                            </a> {% endcomment %}
+                            {% comment %} <a href="{% url 'add_post' %}" class="nav-link">
+                                <button class="btn btn-outline-primary">Add Post</button>
+                            </a> {% endcomment %}
+                            {% comment %} <span class="nav-link welcome-message">Welcome {{ request.user.username }}</span> {% endcomment %}
+                        {% comment %} </li> {% endcomment %}
+                
+                        <a href="" class="nav-link">
+                            <button class="btn btn-outline-success">Login</button>
+                        </a>
+                </ul>
+                <form class="d-flex" role="search">
+                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="searchpost">
+                    <button class="btn btn-outline-success" type="submit">Search</button>
+                </form>
+                {% comment %} {% if user.is_authenticated %}
+                    <a href="{% url 'logout' %}" class="ms-3">
+                        <button class="btn btn-danger">Logout</button>
+                    </a>
+                {% endif %} {% endcomment %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
