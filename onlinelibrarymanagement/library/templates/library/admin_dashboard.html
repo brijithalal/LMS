@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f7fc;
+            margin: 0;
+            padding: 0;
+        }
+        .sidebar {
+            background-color: #343a40;
+            color: white;
+            min-height: 100vh;
+            padding-top: 20px;
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            padding: 15px 20px;
+            display: block;
+        }
+        .sidebar a:hover {
+            background-color: #495057;
+        }
+        .content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        .header {
+            background-color: #007bff;
+            color: white;
+            padding: 15px 30px;
+        }
+        .welcome-message {
+            margin-top: 30px;
+        }
+        .card {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2 class="text-center text-white">Admin Dashboard</h2>
+        <a href="#">Dashboard</a>
+        <a href="#">Manage Users</a>
+        <a href="#">View Reports</a>
+        <a href="#">Settings</a>
+        <a href="#">Logout</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        {% comment %} <div class="header">
+            <h3>Welcome, Admin!</h3>
+        </div> {% endcomment %}
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        {% comment %} <div class="card-body">
+                            <h4 class="card-title">Overview</h4>
+                            <p class="card-text">This is your admin dashboard. You can manage users, view reports, and adjust settings from the sidebar.</p>
+                        </div> {% endcomment %}
+                    </div>
+
+                    {% comment %} <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title">Recent Activity</h4>
+                            <ul>
+                                <li>User John Doe created a new account.</li>
+                                <li>Report generated for September sales.</li>
+                                <li>User Jane Smith updated their profile.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div> {% endcomment %}
+{% comment %} 
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title">Quick Actions</h4>
+                            <ul>
+                                <li><a href="#">Add New User</a></li>
+                                <li><a href="#">Generate Report</a></li>
+                                <li><a href="#">Settings</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div> {% endcomment %}
+
+            {% comment %} <div class="welcome-message">
+                <h5>Welcome to the Admin Dashboard!</h5>
+                <p>Here you can manage all aspects of the platform. Please use the sidebar to navigate through the admin panel.</p>
+            </div> {% endcomment %}
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

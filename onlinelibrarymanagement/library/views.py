@@ -11,30 +11,74 @@ def home(request):
 
 
 
+# def user_login(request):
+#     if request.method == 'POST':
+#         #we will be getting username and password through post
+#         login_form=MyLoginForm(request.POST)
+#         if login_form.is_valid():
+
+#             cleaned_data =login_form.cleaned_data
+#             auth_user = authenticate(request,username = cleaned_data['username'],password=cleaned_data['password'])
+#         if auth_user is not None:
+#             login(request,auth_user)
+#             #get the user's group name
+#             group = auth_user.groups.first()
+#             group_name = group.name if group else "No group"
+#             request.session['group_name'] = group_name
+#             # return HttpResponse('Authenticated')
+#             return redirect('home_path')
+        
+#         else:
+#             return HttpResponse('Not Authenticated')
+#     else:
+#         #if error send form again
+#         login_form=MyLoginForm()
+#     return render(request,'library/login_form.html',
+#                   {'login_form':login_form})
+
 def user_login(request):
     if request.method == 'POST':
-        #we will be getting username and password through post
-        login_form=MyLoginForm(request.POST)
+        # We will be getting username and password through POST
+        login_form = MyLoginForm(request.POST)
         if login_form.is_valid():
+            cleaned_data = login_form.cleaned_data
+            auth_user = authenticate(request, username=cleaned_data['username'], password=cleaned_data['password'])
 
-            cleaned_data =login_form.cleaned_data
-            auth_user = authenticate(request,username = cleaned_data['username'],password=cleaned_data['password'])
-        if auth_user is not None:
-            login(request,auth_user)
-            #get the user's group name
-            group = auth_user.groups.first()
-            group_name = group.name if group else "No group"
-            request.session['group_name'] = group_name
-            # return HttpResponse('Authenticated')
-            return redirect('home_path')
-        
-        else:
-            return HttpResponse('Not Authenticated')
+            if auth_user is not None:
+                login(request, auth_user)
+                # Get the user's group name
+                group = auth_user.groups.first()
+                group_name = group.name if group else "No group"
+                request.session['group_name'] = group_name
+
+                # Check if the user is an admin and redirect accordingly
+                if auth_user.is_superuser:
+                    # Redirect to the admin dashboard if user is an admin
+                    return redirect('admin_dashboard')  # Ensure 'admin_dashboard' is correctly defined in your URLs
+                else:
+                    # Redirect to a regular user's home or another page
+                    return redirect('home_path')  # Adjust the redirect as per your logic
+                
+            else:
+                return HttpResponse('Not Authenticated')
     else:
-        #if error send form again
-        login_form=MyLoginForm()
-    return render(request,'library/login_form.html',
-                  {'login_form':login_form})
+        # If the form is invalid or GET request, send the form again
+        login_form = MyLoginForm()
+    
+    return render(request, 'library/login_form.html', {'login_form': login_form})
+from django.shortcuts import render
+from django.http import HttpResponse
+
+# Admin Dashboard View
+def admin_dashboard(request):
+    # Check if the user is authenticated and is an admin
+    if request.user.is_authenticated and request.user.is_superuser:
+        # You can pass any necessary data to the template here
+        return render(request, 'library/admin_dashboard.html')  # Render the admin dashboard template
+    else:
+        # If the user is not an admin, redirect them to a different page or show an error message
+        return HttpResponse('You are not authorized to access this page.', status=403)
+
 
 
 

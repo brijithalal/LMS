@@ -35,3 +35,4 @@ class userRegistrationForm(forms.ModelForm):
         if cd['password']!=cd['password2']:
             raise forms.ValidationError('password does not make correct')
         return cd['password2']
+    
