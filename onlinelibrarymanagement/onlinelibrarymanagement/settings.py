@@ -125,3 +125,16 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+import os
+MEDIA_ROOT =os.path.join(BASE_DIR, 'media')
+MEDIA_URL='/media/'
+#for setting a static image
+STATIC_URL ='/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+
+
+
+#after login  redirect the page to home page
+
+LOGIN_REDIRECT_URL = "home_path"
+
