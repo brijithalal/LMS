@@ -3,10 +3,12 @@ onlinelibrarymanagement/onlinelibrarymanagement/settings.py
 __pycache__/
 
 # Ignore all migration files
-*/migrations/*.py
+# */migrations/*.py
 
 # But keep the __init__.py file
-!*/migrations/__init__.py
+# !*/migrations/__init__.py
 
 # migrations/.py
 # /migrations/__init__.py
+
+library/migrations/
