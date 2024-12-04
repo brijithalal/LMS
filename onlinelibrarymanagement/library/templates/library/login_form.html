@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa; /* Light background color */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Full viewport height */
+            margin: 0;
+        }
+        .login-container {
+            background: #ffffff; /* White background for the form */
+            padding: 30px;
+            border-radius: 10px; /* Rounded corners */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+            max-width: 400px; /* Limits the form width */
+            width: 100%;
+        }
+        .btn-warning {
+            width: 100%; /* Full-width button */
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h3 class="text-center text-primary">Please Log In</h3>
+        <form action="" method="post" novalidate>
+            {% csrf_token %}
+            <!-- Render Django form fields -->
+            {{ login_form.as_p }}
+            <button type="submit" class="btn btn-warning mt-3">Log In</button>
+        </form>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

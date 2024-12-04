@@ -66,9 +66,9 @@
                         </li>
                        
             
-                        <li class="nav-item">
+                        {% comment %} <li class="nav-item">
                             <a class="nav-link disabled" aria-disabled="true">Disabled</a>
-                        </li>
+                        </li> {% endcomment %}
                         {% comment %} <li class="nav-item"> {% endcomment %}
                             {% comment %} <a href="{% url 'password_change' %}" class="nav-link">
                                 <button class="btn btn-outline-primary">Change Password</button>
@@ -79,8 +79,11 @@
                             {% comment %} <span class="nav-link welcome-message">Welcome {{ request.user.username }}</span> {% endcomment %}
                         {% comment %} </li> {% endcomment %}
                 
-                        <a href="" class="nav-link">
+                        <a href="{% url 'login' %}" class="nav-link">
                             <button class="btn btn-outline-success">Login</button>
+                        </a>
+                        <a href="" class="nav-link">
+                            <button class="btn btn-outline-success">Register</button>
                         </a>
                 </ul>
                 <form class="d-flex" role="search">
