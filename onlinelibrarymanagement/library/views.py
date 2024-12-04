@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 # from onlinelibrarymanagement.library.forms import MyLoginForm
 from django.shortcuts import redirect, render
-from .forms import MyLoginForm
+from .forms import MyLoginForm, userRegistrationForm
 from django.contrib.auth import authenticate,login
 
 # Create your views here.
@@ -35,3 +35,23 @@ def user_login(request):
         login_form=MyLoginForm()
     return render(request,'library/login_form.html',
                   {'login_form':login_form})
+
+
+
+def register(request):
+    if request.method =='POST':
+        #we will be getting username and password through POST
+        user_req_form = userRegistrationForm(request.POST)
+        if user_req_form.is_valid():
+            #create the form do not save it 
+            new_user = user_req_form.save(commit=False)
+            #set the password after validation
+            #checked password == confirm password
+            #password value is assigned 
+            #set_password() to assign to object
+            new_user.set_password(user_req_form.cleaned_data['password'])
+            new_user.save() #save to db
+            return render(request,'post/register_done.html',{'user_req_form' : user_req_form})
+    else:
+        user_req_form =userRegistrationForm()
+        return render(request,'library/register_form.html',{'user_req_form':user_req_form})
