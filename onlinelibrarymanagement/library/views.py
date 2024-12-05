@@ -95,7 +95,7 @@ def register(request):
             #set_password() to assign to object
             new_user.set_password(user_req_form.cleaned_data['password'])
             new_user.save() #save to db
-            return render(request,'post/register_done.html',{'user_req_form' : user_req_form})
+            return render(request,'library/topbar.html',{'user_req_form' : user_req_form})
     else:
         user_req_form =userRegistrationForm()
         return render(request,'library/register_form.html',{'user_req_form':user_req_form})

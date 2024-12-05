@@ -2,7 +2,7 @@
 onlinelibrarymanagement/onlinelibrarymanagement/settings.py
 __pycache__/
 
-library/migrations/
+/library/migrations/
 
 
 # */migrations/
