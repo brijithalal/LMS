@@ -48,11 +48,13 @@
     <!-- Sidebar -->
     <div class="sidebar">
         <h2 class="text-center text-white">Admin Dashboard</h2>
+        <h3 class="text-center text-white">welcome {{request.user.first_na  me}} </h3>
+
         <a href="#">Dashboard</a>
         <a href="#">Manage Users</a>
         <a href="#">View Reports</a>
         <a href="#">Settings</a>
-        <a href="#">Logout</a>
+        <a href="{% url 'logout' %}">Logout</a>
     </div>
 
     <!-- Main Content -->

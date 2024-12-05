@@ -1,13 +1,20 @@
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 # from onlinelibrarymanagement.library.forms import MyLoginForm
 from django.shortcuts import redirect, render
 from .forms import MyLoginForm, userRegistrationForm
-from django.contrib.auth import authenticate,login
+from django.contrib.auth import authenticate,login,logout
 
 # Create your views here.
 def home(request):
-    return render(request,'library/base.html')
+    if request.user.is_authenticated and request.session['group_name']=='admin':
+        return redirect("admin_dashboard")
+
+
+
+    else:
+
+        return render(request,'library/base.html')
 
 
 
@@ -52,10 +59,10 @@ def user_login(request):
                 request.session['group_name'] = group_name
 
                 # Check if the user is an admin and redirect accordingly
-                if auth_user.is_superuser:
+                if request.session['group_name']=='admin' :
                     # Redirect to the admin dashboard if user is an admin
                     return redirect('admin_dashboard')  # Ensure 'admin_dashboard' is correctly defined in your URLs
-                else:
+                elif request.session['group_name']=='user':
                     # Redirect to a regular user's home or another page
                     return redirect('home_path')  # Adjust the redirect as per your logic
                 
@@ -72,7 +79,7 @@ from django.http import HttpResponse
 # Admin Dashboard View
 def admin_dashboard(request):
     # Check if the user is authenticated and is an admin
-    if request.user.is_authenticated and request.user.is_superuser:
+    if request.user.is_authenticated and request.session['group_name']=='admin':
         # You can pass any necessary data to the template here
         return render(request, 'library/admin_dashboard.html')  # Render the admin dashboard template
     else:
@@ -95,7 +102,13 @@ def register(request):
             #set_password() to assign to object
             new_user.set_password(user_req_form.cleaned_data['password'])
             new_user.save() #save to db
-            return render(request,'post/register_done.html',{'user_req_form' : user_req_form})
+            return redirect("home_path")
     else:
         user_req_form =userRegistrationForm()
         return render(request,'library/register_form.html',{'user_req_form':user_req_form})
+    
+
+
+def custom_logout(request):
+    logout(request)# destroy all the session id for a particular user
+    return redirect('home_path')
