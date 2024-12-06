@@ -78,13 +78,21 @@
                             </a> {% endcomment %}
                             {% comment %} <span class="nav-link welcome-message">Welcome {{ request.user.username }}</span> {% endcomment %}
                         {% comment %} </li> {% endcomment %}
-                
-                        <a href="{% url 'login' %}" class="nav-link">
-                            <button class="btn btn-outline-success">Login</button>
-                        </a>
-                        <a href="{% url 'register' %}" class="nav-link">
-                            <button class="btn btn-outline-success">Register</button>
-                        </a>
+                {% if user.is_authenticated %}
+                <h3>welcome {{request.user}} </h3>
+                <li class="nav-item">
+                <a href="{% url 'logout' %}" class="nav-link"><button class="btn btn-outline-success">logout</button></a>
+            </li>
+                {% else %}
+
+                <a href="{% url 'login' %}" class="nav-link">
+                    <button class="btn btn-outline-success">Login</button>
+                </a>
+                <a href="{% url 'register' %}" class="nav-link">
+                    <button class="btn btn-outline-success">Register</button>
+                </a>
+                {% endif %}
+                        
                 </ul>
                 <form class="d-flex" role="search">
                     <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="searchpost">
