@@ -1,3 +1,4 @@
+from datetime import timedelta, timezone
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render,redirect
 # from onlinelibrarymanagement.library.forms import MyLoginForm
@@ -5,7 +6,7 @@ from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 
-from .models import Authors, Book, Category, SubscriptionPlans
+from .models import Authors, Book, Category, Rent, SubscriptionPlans, Subscriptions
 from .forms import AddAuthorForm, AddBookForm, AddCategoryForm, EditAuthorForm, EditBookForm, EditCategoryForm, MyLoginForm, userRegistrationForm
 from django.contrib.auth import authenticate,login,logout
 
@@ -15,8 +16,11 @@ def home(request):
         return redirect("admin_dashboard")
         
     else:
+        view_books = Book.objects.all()
+        print(view_books)
+        return render(request,'library/topbar.html',{"view_books":view_books})
 
-        return render(request,'library/base.html')
+        # return render(request,'library/base.html')
 
 
 # def user_login(request):
@@ -78,6 +82,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 
 # Admin Dashboard View
+@login_required
 def admin_dashboard(request):
     # Check if the user is authenticated and is an admin
     if request.user.is_authenticated and request.session['group_name']=='admin':
@@ -559,3 +564,102 @@ def view_subscriptions(request):
     subscriptions_list = SubscriptionPlans.objects.all()
     return render(request,'library/view_subscriptions.html',{'subscriptions_list':subscriptions_list})
 
+def view_subscriptions_plan_user(request):
+    subscriptions_list = SubscriptionPlans.objects.all()
+    return render(request,'library/view_subscriptions_plans_user.html',{'subscriptions_list':subscriptions_list})
+
+def view_all_books_home(request):
+    view_books = Book.objects.all()
+    print(view_books)
+    return render(request,'library/topbar.html',{"view_books":view_books})
+
+
+
+# def rent_book(request, book_id):
+#     # Assuming you have access to the current logged-in user
+#     user = request.user
+#     book = Book.objects.get(id=book_id)
+    
+#     # Get the user's subscription plan
+#     subscription = Subscriptions.objects.get(user=user)
+#     plan = subscription.plan  # This gives you the SubscriptionPlans object
+    
+#     # Set rental duration based on the subscription plan
+#     if plan.plan_name == "Gold":
+#         rental_duration = timedelta(days=28)  # 28 days for Gold Plan
+#     elif plan.plan_name == "Platinum":
+#         rental_duration = timedelta(days=60)  # 2 months for Platinum Plan
+#     elif plan.plan_name == "Diamond":
+#         rental_duration = timedelta(days=90)  # 3 months for Diamond Plan
+#     else:
+#         rental_duration = timedelta(days=28)  # Default to 28 days if plan is not recognized
+
+#     # Now, create a rental record (you can modify this to your exact requirement)
+#     rental_end_date = timezone.now() + rental_duration
+
+#     # Assuming you have a model to track rentals
+#     rental = Rent.objects.create(
+#         user=user,
+#         book=book,
+#         rental_start_date=timezone.now(),
+#         rental_end_date=rental_end_date
+#     )
+
+#     return redirect('rental_success')
+
+
+from django.contrib import messages
+
+def rent_book(request, book_id):
+    # Assuming you have access to the current logged-in user
+    user = request.user
+    try:
+        # Get the book by ID
+        book = Book.objects.get(id=book_id)
+    except Book.DoesNotExist:
+        messages.error(request, "The book you are trying to rent does not exist.")
+        return redirect('home_path')
+
+    try:
+        # Get the user's subscription plan
+        subscription = Subscriptions.objects.get(user=user)
+        plan = subscription.plan  # This gives you the SubscriptionPlans object
+    except Subscriptions.DoesNotExist:
+        # If the user is not subscribed to any plan
+        messages.info(request, "You are not subscribed to any plan. Please subscribe to a plan to rent books.")
+        return redirect('view_subscriptions_plans_user')  # Redirect to subscriptions page
+
+    # Set rental duration based on the subscription plan
+    if plan.plan_name == "Gold":
+        rental_duration = timedelta(days=28)  # 28 days for Gold Plan
+    elif plan.plan_name == "Platinum":
+        rental_duration = timedelta(days=60)  # 2 months for Platinum Plan
+    elif plan.plan_name == "Diamond":
+        rental_duration = timedelta(days=90)  # 3 months for Diamond Plan
+    else:
+        rental_duration = timedelta(days=28)  # Default to 28 days if plan is not recognized
+
+    # Show confirmation to the user about renting the book
+    if request.method == 'POST':
+        # If confirmed, create a rental record
+        rental_end_date = timezone.now() + rental_duration
+        rental = Rent.objects.create(
+            user=user,
+            book=book,
+            rent_date=timezone.now(),
+            expiry_date=rental_end_date
+        )
+        messages.success(request, f"You have rented '{book.book_title}' for {rental_duration.days} days.")
+        return redirect('rental_success')  # Redirect to a success page or book details
+
+    # If it's not a POST request, show the confirmation page
+    return render(request, 'library/rent_confirmation.html', {
+        'book': book,
+        'rental_duration': rental_duration,
+        'plan': plan
+    })
+
+
+
+def rental_success(request):
+    return render(request, 'library/rental_success.html')

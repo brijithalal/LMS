@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns =[
     path('',views.home,name='home_path'),
+    path('', views.view_all_books_home, name='view_book_home'),
     path('accounts/login/',views.user_login,name='login'),
     path('admin_dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('admin_dashboard/edit_book/<int:pk>',views.edit_books,name = "edit_book"),
@@ -24,6 +25,9 @@ urlpatterns =[
     path('view_book/', views.admin_book_list, name='book_list'),
     path('view_author/', views.author_list, name='admin_list'),
     path('view_categories/', views.category_list, name='category_list'),
+    path('rent_book/<int:book_id>/', views.rent_book, name='rent_book'),
+    path('rental_success/', views.rental_success, name='rental_success'),
+    path('view_subscriptions_plan_user/',views.view_subscriptions_plan_user,name = "view_subscriptions_plans_user"),
     path('logout/',views.custom_logout,name="logout")
 
 ]
