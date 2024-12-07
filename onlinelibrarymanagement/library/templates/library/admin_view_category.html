@@ -1,41 +1,6 @@
-{% comment %} 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book List</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <div class="container py-5">
-        <h1 class="text-center text-primary mb-4">Category List</h1>
 
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-            {% for category in category_list %}
-            <div class="col">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body">
-                        {% comment %} <h5 class="card-title text-primary">{{ book.book_title }}</h5> {% endcomment %}
-                        {% comment %} <p class="card-text"><strong>{{category.category_name }}</strong></p>
-                    </div>
-                    <div class="card-footer d-flex justify-content-between">
-                        <a href="{% url 'admin_dashboard' %}edit_category/{{ category.id }}" class="btn btn-warning btn-sm">Edit</a>
-                        <a href="{% url 'admin_dashboard' %}delete_category/{{ category.id }}" class="btn btn-danger btn-sm">Delete</a>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
 
-    <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html> {% endcomment %} 
-
-<!DOCTYPE html>
+{% comment %} <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -146,4 +111,149 @@
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+</html> {% endcomment %}
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category List</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 1200px;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-bar input {
+            flex: 1;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            padding: 8px;
+        }
+
+        .search-bar button {
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: none;
+            background-color: #0d6efd;
+            color: #fff;
+        }
+
+        .search-bar button:hover {
+            background-color: #0b5ed7;
+        }
+
+        .card {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: scale(1.02);
+        }
+
+        .btn-sm {
+            font-size: 0.875rem;
+        }
+
+        .btn-warning {
+            color: #000;
+        }
+
+        .btn-danger {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <!-- Header Section -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="text-primary">Category List</h1>
+            <a href="{% url 'add_category_admin' %}" class="btn btn-success btn-sm">+ Add Category</a>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="mb-4">
+            <form method="get" action="{% url 'category_list' %}" class="search-bar">
+                <input type="text" name="search" value="{{ search_query }}" placeholder="Search categories...">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+        </div>
+
+        <!-- Category Cards Section -->
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for category in category_list %}
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <p class="card-text"><strong>{{ category.category_name }}</strong></p>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between">
+                        <a href="{% url 'admin_dashboard' %}edit_category/{{ category.id }}" class="btn btn-warning btn-sm">Edit</a>
+                        <!-- Delete Button with JavaScript modal trigger -->
+                        <a href="#" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal" onclick="setDeleteUrl('{{ category.id }}')">Delete</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <p class="text-muted">No categories found.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="mt-4">
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom Modal for Delete Confirmation -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete this category?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                    <a id="confirmDeleteBtn" class="btn btn-danger" href="#">Yes</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript for setting the delete URL -->
+    <script>
+        // Function to set the delete URL dynamically
+        function setDeleteUrl(categoryId) {
+            const deleteUrl = "{% url 'admin_dashboard' %}delete_category/" + categoryId;
+            document.getElementById('confirmDeleteBtn').href = deleteUrl;
+        }
+    </script>
+</body>
 </html>
+

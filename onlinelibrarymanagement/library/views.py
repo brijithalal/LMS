@@ -13,13 +13,10 @@ from django.contrib.auth import authenticate,login,logout
 def home(request):
     if request.user.is_authenticated and request.session['group_name']=='admin':
         return redirect("admin_dashboard")
-
-
-
+        
     else:
 
         return render(request,'library/base.html')
-
 
 
 # def user_login(request):
@@ -144,47 +141,118 @@ def custom_logout(request):
 #     return render(request,'library/add_book.html',{'add_book_form':add_book})
 
 
-def add_books(request):
-    if request.method == 'POST':
-        add_book = AddBookForm(request.POST, request.FILES)
+# def add_books(request):
+#     if request.method == 'POST':
+#         add_book = AddBookForm(request.POST, request.FILES)
 
-        if add_book.is_valid():
-            add_book.save()
+#         if add_book.is_valid():
+#             add_book.save()
+
+#             # Clear session data after saving the book
+#             request.session.pop('book_data', None)
+            
+#             return redirect('admin_book_list')
+#         else:
+#             print(add_book.errors)
+#     else:
+#         # On GET request, retrieve session data if available
+#         book_data = request.session.get('book_data', {})
+#         print(book_data)
+#         # Initialize the form with the session data
+#         add_book = AddBookForm(initial=book_data)
+        
+#     # Store the current form data in session before redirecting
+#     if 'add_author' in request.GET:  # Check if "Add Author" button was clicked
+#         # Save form data in session before redirecting
+#         book_data = add_book.cleaned_data if add_book.is_valid() else request.POST
+#         request.session['book_data'] = book_data  # Save form data in session
+#         print(request.session['book_data'])
+#         print("hello")
+        
+#         return redirect('add_author')  # Redirect to add_author page
+
+#     if 'add_category' in request.GET:  # Check if "Add Category" button was clicked
+#         # Save form data in session before redirecting
+#         book_data = add_book.cleaned_data if add_book.is_valid() else request.POST
+#         request.session['book_data'] = book_data  # Save form data in session
+#         print("hello",request.session['book_data'])
+#         return redirect('add_category')  # Redirect to add_category page
+
+#     return render(request, 'library/add_book.html', {'add_book_form': add_book})
+
+# def add_books(request):
+#     # Initialize form with session data if it exists
+#     book_data = request.session.get('book_data', {})
+#     add_book = AddBookForm(initial=book_data)
+
+#     if request.method == 'POST':
+#         add_book = AddBookForm(request.POST, request.FILES)
+#         if add_book.is_valid():
+#             # Save the book
+#             add_book.save()
+
+#             # Clear session data after saving the book
+#             if 'book_data' in request.session:
+#                 del request.session['book_data']
+
+#             return redirect('admin_dashboard')  # Redirect after saving
+#         else:
+#             print(add_book.errors)  # Print errors if form is invalid
+
+#     # Handle "Add Author" button click
+#     if 'add_author' in request.GET:
+#         if add_book.is_valid():
+#             request.session['book_data'] = add_book.cleaned_data  # Save valid form data to session
+#         else:
+#             request.session['book_data'] = request.POST.dict()  # Save raw POST data to session
+#         return redirect('add_author')
+
+#     # Handle "Add Category" button click
+#     if 'add_category' in request.GET:
+#         if add_book.is_valid():
+#             request.session['book_data'] = add_book.cleaned_data  # Save valid form data to session
+#         else:
+#             request.session['book_data'] = request.POST.dict()  # Save raw POST data to session
+#         return redirect('add_category')
+
+#     return render(request, 'library/add_book.html', {'add_book_form': add_book})
+
+
+def add_books(request):
+    # Initialize the form with session data if available
+    book_data = request.session.get('book_data', {})
+    add_book_form = AddBookForm(initial=book_data)
+
+    if request.method == 'POST':
+        add_book_form = AddBookForm(request.POST, request.FILES)
+        if add_book_form.is_valid():
+            # Save the book
+            add_book_form.save()
 
             # Clear session data after saving the book
-            request.session.pop('book_data', None)
-            
-            return redirect('admin_book_list')
+            if 'book_data' in request.session:
+                del request.session['book_data']
+
+            return redirect('admin_dashboard')  # Redirect after saving
         else:
-            print(add_book.errors)
-    else:
-        # On GET request, retrieve session data if available
-        book_data = request.session.get('book_data', {})
-        print(book_data)
-        # Initialize the form with the session data
-        add_book = AddBookForm(initial=book_data)
-        
-    # Store the current form data in session before redirecting
-    if 'add_author' in request.GET:  # Check if "Add Author" button was clicked
-        # Save form data in session before redirecting
-        book_data = add_book.cleaned_data if add_book.is_valid() else request.POST
-        request.session['book_data'] = book_data  # Save form data in session
-        print(request.session['book_data'])
-        print("hello")
-        
-        return redirect('add_author')  # Redirect to add_author page
+            print(add_book_form.errors)
 
-    if 'add_category' in request.GET:  # Check if "Add Category" button was clicked
-        # Save form data in session before redirecting
-        book_data = add_book.cleaned_data if add_book.is_valid() else request.POST
-        request.session['book_data'] = book_data  # Save form data in session
-        print("hello",request.session['book_data'])
-        return redirect('add_category')  # Redirect to add_category page
+    # Save form data to session before redirecting to add author or category
+    if 'add_author' in request.GET:
+        if add_book_form.is_valid():
+            request.session['book_data'] = add_book_form.cleaned_data
+        else:
+            request.session['book_data'] = request.POST.dict()
+        return redirect('add_author')
 
-    return render(request, 'library/add_book.html', {'add_book_form': add_book})
+    if 'add_category' in request.GET:
+        if add_book_form.is_valid():
+            request.session['book_data'] = add_book_form.cleaned_data
+        else:
+            request.session['book_data'] = request.POST.dict()
+        return redirect('add_category')
 
-
-
+    return render(request, 'library/add_book.html', {'add_book_form': add_book_form})
 
 
 # def add_books(request):
@@ -257,19 +325,67 @@ def delete_book(request,pk):
     book_list.delete()
     return redirect('admin_book_list')
 
+# def add_authors_from_book(request):
+#     if request.method == 'POST':
+#         add_author = AddAuthorForm(request.POST)
+#         if add_author.is_valid():
+#             add_author.save()
+#             # Redirect back to the add book page or any desired page
+
+#             return redirect('add_book')  # Adjust the name of the add_books URL as needed
+#         else:
+#             print(add_author.errors)
+#     else:
+#         add_author = AddAuthorForm()
+#     return render(request, 'library/add_author_from_addbookform.html', {'add_author_form': add_author})
+
+
+# def add_authors_from_book(request):
+#     if request.method == 'POST':
+#             add_author = AddAuthorForm(request.POST)
+#             if add_author.is_valid():
+#                 # Save the author
+#                 add_author.save()
+
+#                 # After saving the author, store the current book data in session
+#                 # Retrieve the existing book data from session
+#                 book_data = request.session.get('book_data', {})
+#                 book_data['author'] = add_author.cleaned_data['author_name']  # Assuming 'name' is the field name in AddAuthorForm
+
+#                 # Store the updated book data back to session
+#                 request.session['book_data'] = book_data
+
+#                 # Redirect back to the Add Book form
+#                 return redirect('add_book')
+#     else:
+#         add_author = AddAuthorForm()
+
+#     return render(request, 'library/add_author_from_addbookform.html', {'add_author_form': add_author})
+
+
+
 def add_authors_from_book(request):
     if request.method == 'POST':
         add_author = AddAuthorForm(request.POST)
         if add_author.is_valid():
+            # Save the author
             add_author.save()
-            # Redirect back to the add book page or any desired page
 
-            return redirect('add_book')  # Adjust the name of the add_books URL as needed
-        else:
-            print(add_author.errors)
+            # Get existing book data from session and save the new author
+            book_data = request.session.get('book_data', {})
+            book_data['author'] = add_author.cleaned_data['author_name']  # Assuming 'name' is the field name in AddAuthorForm
+
+            # Store updated book data back in session
+            request.session['book_data'] = book_data
+
+            # Redirect back to Add Book form
+            return redirect('add_book')
     else:
         add_author = AddAuthorForm()
+
     return render(request, 'library/add_author_from_addbookform.html', {'add_author_form': add_author})
+
+
 
 def add_authors_admin(request):
     if request.method == 'POST':
