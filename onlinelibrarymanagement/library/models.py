@@ -48,13 +48,18 @@ class SubscriptionPlans(models.Model):
 class Subscriptions(models.Model):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
-    plan = models.ForeignKey(SubscriptionPlans,related_name="subscriptions",on_delete=models.CASCADE)
-    user = models.ForeignKey(User,related_name="subscriptions",on_delete=models.DO_NOTHING)
+    plan = models.ForeignKey(SubscriptionPlans,related_name="plan_categories",on_delete=models.CASCADE)
+    user = models.ForeignKey(User,related_name="plan_categories",on_delete=models.DO_NOTHING)
 
 
     def __str__(self):
         return self.user.username
+    
 
+class PlanCategory(models.Model):
+    plan = models.ForeignKey(SubscriptionPlans,related_name="subscriptions", on_delete=models.CASCADE)
+    category = models.ForeignKey(Category,related_name="category",on_delete=models.CASCADE)
 
-
+    def __str__(self):
+        return self.plan
 
