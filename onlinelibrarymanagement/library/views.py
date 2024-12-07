@@ -411,7 +411,35 @@ def book_list(request):
     return render(request, 'library/admin_view_booklist.html', context)
 
 
+def author_list(request):
+    search_query = request.GET.get('search', '')  # Get the search term from the request
+    if search_query:
+        authors = Authors.objects.filter(author_name__icontains=search_query)  # Filter authors by name
+    else:
+        authors = Authors.objects.all()  # Show all authors if no search query
+
+    context = {
+        'author_list': authors,
+        'search_query': search_query,
+    }
+    return render(request, 'library/admin_view_authors.html', context)
+
+
+
+def category_list(request):
+    search_query = request.GET.get('search', '')  # Capture the search term
+    if search_query:
+        categories = Category.objects.filter(category_name__icontains=search_query)  # Case-insensitive search
+    else:
+        categories = Category.objects.all()  # Fetch all categories if no search query
+
+    context = {
+        'category_list': categories,
+        'search_query': search_query,
+    }
+    return render(request, 'library/admin_view_category.html', context)
 
 def view_subscriptions(request):
     subscriptions_list = SubscriptionPlans.objects.all()
     return render(request,'library/view_subscriptions.html',{'subscriptions_list':subscriptions_list})
+

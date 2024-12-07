@@ -149,7 +149,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>  {% endcomment %}
-<!DOCTYPE html>
+{% comment %} <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -213,15 +213,15 @@
         <!-- Sidebar Links -->
         <div class="sidebar-links">
             {% comment %} <a href="{% url 'add_book' %}" class="active">Add Book</a> {% endcomment %}
-            <a href="#">Manage Users</a>
+            {% comment %} <a href="#">Manage Users</a>
             <a href="{% url 'admin_book_list' %}">Manage Books</a>
             {% comment %} <a href="{% url 'add_author_admin' %}">Add Author</a> {% endcomment %}
-            <a href="{% url 'view_author' %}">Manage Authors</a>
+            {% comment %} <a href="{% url 'view_author' %}">Manage Authors</a> {% endcomment %}
             {% comment %} <a href="{% url 'add_category_admin' %}">Add Category</a> {% endcomment %}
-            <a href="{% url 'view_category' %}">Manage Category</a>
-            <a href="{% url 'view_subscriptions' %}">Manage Subscription Plans</a>
-            <a href="{% url 'logout' %}">Logout</a>
-        </div>
+            {% comment %} <a href="{% url 'view_category' %}">Manage Category</a> {% endcomment %}
+            {% comment %} <a href="{% url 'view_subscriptions' %}">Manage Subscription Plans</a> {% endcomment %}
+            {% comment %} <a href="{% url 'logout' %}">Logout</a> {% endcomment %}
+        {% comment %} </div>
     </div>
 
     <!-- Main Content -->
@@ -229,7 +229,220 @@
         <!-- Content Goes Here -->
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> {% endcomment %}
+{% comment %} </body> {% endcomment %}
+{% comment %} </html> {% endcomment %} 
+  
+
+
+{% comment %} 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            background-color: #f4f7fc;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background-color: #343a40;
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: fixed;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .sidebar-links {
+            width: 100%;
+        }
+
+        .sidebar-links a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 15px 20px;
+            margin: 10px 0;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .sidebar-links a:hover, .sidebar-links a.active {
+            background-color: #007bff;
+        }
+
+        /* Content Area */
+        .content {
+            margin-left: 250px;
+            padding: 20px;
+            flex-grow: 1;
+            width: calc(100% - 250px);
+        }
+
+        .header {
+            background-color: white;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+            font-size: 1.5rem;
+        }
+
+        /* Responsive Sidebar */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: absolute;
+                width: 100%;
+                height: auto;
+            }
+
+            .content {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Admin Dashboard</h2>
+        <div class="sidebar-links">
+            <a href="{% url 'add_book' %}" class="active">Add Book</a>
+            <a href="{% url 'admin_book_list' %}">Manage Books</a>
+            <a href="{% url 'view_author' %}">Manage Authors</a>
+            <a href="{% url 'view_category' %}">Manage Categories</a>
+            <a href="{% url 'view_subscriptions' %}">Manage Subscription Plans</a>
+            <a href="{% url 'logout' %}">Logout</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <div class="header">
+            Welcome, {{request.user.first_name}}
+        </div>
+        <div>
+            <!-- Content Section -->
+            <p>Select an option from the sidebar to manage the system.</p>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> {% endcomment %}
+
+
+<!-- base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin Dashboard{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fc;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #343a40;
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+            position: fixed;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .sidebar-links {
+            width: 100%;
+        }
+
+        .sidebar-links a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 15px 20px;
+            margin: 10px 0;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .sidebar-links a:hover, .sidebar-links a.active {
+            background-color: #007bff;
+        }
+
+        .content {
+            margin-left: 250px;
+            padding: 20px;
+            flex-grow: 1;
+            width: calc(100% - 250px);
+        }
+
+        .header {
+            background-color: white;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Admin Dashboard</h2>
+        <div class="sidebar-links">
+            {% comment %} <a href="{% url 'add_book' %}">Add Book</a> {% endcomment %}
+            <a href="{% url 'admin_book_list' %}">Manage Books</a>
+            <a href="{% url 'view_author' %}">Manage Authors</a>
+            <a href="{% url 'view_category' %}">Manage Categories</a>
+            <a href="{% url 'view_subscriptions' %}">Manage Subscription Plans</a>
+            <a href="{% url 'logout' %}">Logout</a>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="content">
+        <div class="header">
+            {% block header %}Welcome , {{request.user.first_name }} {{request.user.last_name}}{% endblock %}
+        </div>
+        {% block content %}
+        <!-- Dynamic Content Will Be Injected Here -->
+        {% endblock %}
+    </div>
+
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
- 

@@ -22,6 +22,8 @@ urlpatterns =[
     path('admin_dashboard/add_category_admin/',views.add_categories_from_admin,name = "add_category_admin"),
     path('admin_dashboard/view_subscriptions/',views.view_subscriptions,name = "view_subscriptions"),
     path('view_book/', views.admin_book_list, name='book_list'),
+    path('view_author/', views.author_list, name='admin_list'),
+    path('view_categories/', views.category_list, name='category_list'),
     path('logout/',views.custom_logout,name="logout")
 
 ]
