@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{% comment %} <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -35,6 +35,7 @@
             background-color: #007bff;
             color: white;
             padding: 15px 30px;
+            border-radius: 5px;
         }
         .welcome-message {
             margin-top: 30px;
@@ -42,71 +43,193 @@
         .card {
             margin-bottom: 20px;
         }
+        /* Flexbox layout for cards */
+        .card-columns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .card {
+            flex: 1 0 300px; /* Cards will grow, but take at least 300px width */
+            margin: 10px;
+        }
+        .card-body {
+            text-align: center;
+        }
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+        .card-text {
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+        .btn-light {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+        }
+        .btn-light:hover {
+            background-color: #e2e6ea;
+        }
+        /* Responsiveness for smaller screens */
+        @media (max-width: 768px) {
+            .card-columns {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
     </style>
-</head>
+{% comment %} </head>
 <body>
     <!-- Sidebar -->
     <div class="sidebar">
         <h2 class="text-center text-white">Admin Dashboard</h2>
-        <h3 class="text-center text-white">welcome {{request.user.first_na  me}} </h3>
+        <h3 class="text-center text-white">Welcome {{ request.user.first_name }}</h3>
 
-        <a href="#">Dashboard</a>
+        <a href="{% url 'add_book' %}">Add Book</a>
         <a href="#">Manage Users</a>
-        <a href="#">View Reports</a>
-        <a href="#">Settings</a>
+        <a href="{% url 'admin_book_list' %}">View Books</a>
+        <a href="#">Add Author</a>
         <a href="{% url 'logout' %}">Logout</a>
-    </div>
+    </div> {% endcomment %}
 
     <!-- Main Content -->
-    <div class="content">
-        {% comment %} <div class="header">
-            <h3>Welcome, Admin!</h3>
-        </div> {% endcomment %}
-
+    {% comment %} <div class="content">
         <div class="container">
-            <div class="row">
-                <div class="col-md-8">
-                    <div class="card">
-                        {% comment %} <div class="card-body">
-                            <h4 class="card-title">Overview</h4>
-                            <p class="card-text">This is your admin dashboard. You can manage users, view reports, and adjust settings from the sidebar.</p>
-                        </div> {% endcomment %}
-                    </div>
+            <div class="header mb-4">
+                <h3>Welcome, Admin!</h3>
+            </div>
 
-                    {% comment %} <div class="card">
-                        <div class="card-body">
-                            <h4 class="card-title">Recent Activity</h4>
-                            <ul>
-                                <li>User John Doe created a new account.</li>
-                                <li>Report generated for September sales.</li>
-                                <li>User Jane Smith updated their profile.</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div> {% endcomment %}
-{% comment %} 
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h4 class="card-title">Quick Actions</h4>
-                            <ul>
-                                <li><a href="#">Add New User</a></li>
-                                <li><a href="#">Generate Report</a></li>
-                                <li><a href="#">Settings</a></li>
-                            </ul>
-                        </div>
+            <!-- Flex Cards for Dashboard Stats or Quick Actions -->
+            <div class="card-columns">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Books</h5>
+                        <p class="card-text">This section shows the total number of books in the system.</p>
+                        <a href="{% url 'admin_book_list' %}" class="btn btn-light">View Books</a>
                     </div>
                 </div>
-            </div> {% endcomment %}
 
-            {% comment %} <div class="welcome-message">
-                <h5>Welcome to the Admin Dashboard!</h5>
-                <p>Here you can manage all aspects of the platform. Please use the sidebar to navigate through the admin panel.</p>
-            </div> {% endcomment %}
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Authors</h5>
+                        <p class="card-text">This section shows the total number of authors in the system.</p>
+                        <a href="{% url 'add_author' %}" class="btn btn-light">Add Author</a>
+                    </div>
+                </div>
+
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Recent Activity</h5>
+                        <p class="card-text">Here you can see recent activities performed by the admin.</p>
+                        <a href="#" class="btn btn-light">View Activity</a>
+                    </div>
+                </div>
+
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Manage Users</h5>
+                        <p class="card-text">Manage user profiles and permissions here.</p>
+                        <a href="#" class="btn btn-light">Manage Users</a>
+                    </div>
+                </div>
+
+                <div class="card bg-danger text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Settings</h5>
+                        <p class="card-text">Update platform settings and configurations.</p>
+                        <a href="#" class="btn btn-light">Go to Settings</a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+</html>  {% endcomment %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f7fc;
+            margin: 0;
+            padding: 0;
+        }
+        .sidebar {
+            background-color: #343a40;
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .sidebar h2, .sidebar h3 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .sidebar .sidebar-links {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            padding: 15px 20px;
+            display: block;
+            text-align: center;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .sidebar a:hover {
+            background-color: #495057;
+        }
+        .sidebar a.active {
+            background-color: #007bff;
+        }
+        .sidebar .user-info {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2 class="text-white">Admin Dashboard</h2>
+        <div class="user-info">
+            <h3 class="text-white">Welcome {{ request.user.first_name }}</h3>
+        </div>
+
+        <!-- Sidebar Links -->
+        <div class="sidebar-links">
+            {% comment %} <a href="{% url 'add_book' %}" class="active">Add Book</a> {% endcomment %}
+            <a href="#">Manage Users</a>
+            <a href="{% url 'admin_book_list' %}">Manage Books</a>
+            {% comment %} <a href="{% url 'add_author_admin' %}">Add Author</a> {% endcomment %}
+            <a href="{% url 'view_author' %}">Manage Authors</a>
+            {% comment %} <a href="{% url 'add_category_admin' %}">Add Category</a> {% endcomment %}
+            <a href="{% url 'view_category' %}">Manage Category</a>
+            <a href="{% url 'view_subscriptions' %}">Manage Subscription Plans</a>
+            <a href="{% url 'logout' %}">Logout</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <!-- Content Goes Here -->
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
 </html>
+ 

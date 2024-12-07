@@ -2,7 +2,7 @@
 from typing import Any
 from django import forms
 from django.shortcuts import redirect, render
-from .models import  User
+from .models import  Authors, Book, Category, User
 from django.core.exceptions import ValidationError
 
 class MyLoginForm(forms.Form):
@@ -36,3 +36,58 @@ class userRegistrationForm(forms.ModelForm):
             raise forms.ValidationError('password does not make correct')
         return cd['password2']
     
+class AddBookForm(forms.ModelForm):
+    class Meta:
+        model = Book
+        fields = ('ISBN', 'book_title','price','rent_price','description','hide_book','stock_quantity','book_image','content_file','publication_date','author','category')
+    
+    def __init__(self, *args, **kwargs):
+        # Extract session data passed via kwargs
+        session_data = kwargs.pop('session_data', {})
+        super(AddBookForm, self).__init__(*args, **kwargs)
+
+        # Pre-fill form fields with session data if available
+        for field_name, value in session_data.items():
+            if field_name in self.fields:
+                self.fields[field_name].initial = value
+    
+    
+    
+    
+    # def clean_book_image(self):
+    #     book_image = self.cleaned_data.get('book_image')
+    #     if book_image:
+    #         if not book_image.name.lower().endswith(('.png','.jpg','.jpeg')):
+    #             raise forms.ValidationError('Image must be in PNG, JPG, or JPEG format!') 
+    #     return book_image 
+    # def clean_book_pdf(self):
+    #     book_content = self.cleaned_data.get('content_file')
+    #     if book_content:
+    #         if not book_content.name.lower().endswith(('.pdf',)):
+    #             raise forms.ValidationError('Content must be in  Pdf!') 
+    #     return book_content 
+class AddAuthorForm(forms.ModelForm):
+    class Meta:
+        model = Authors   
+        fields = ('author_name',)     
+
+class AddCategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ('category_name',)
+
+
+class EditBookForm(forms.ModelForm):
+    class Meta:
+        model = Book
+        fields = ('book_title','price','rent_price','hide_book','stock_quantity')
+
+class EditAuthorForm(forms.ModelForm):
+    class Meta:
+        model = Authors
+        fields = ('author_name',)
+class EditCategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ('category_name',)
+

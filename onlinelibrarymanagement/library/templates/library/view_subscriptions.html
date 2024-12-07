@@ -1,0 +1,70 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Membership and Rentals</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container py-5">
+        <h1 class="text-center text-primary mb-4">Membership and Rentals</h1>
+
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            <!-- Gold Plan -->
+            <div class="col">
+                <div class="card h-100 shadow-sm border-warning">
+                    <div class="card-body">
+                        <h5 class="card-title text-warning">Gold Plan</h5>
+                        <p class="card-text">This plan provides access to Fiction and Non-Fiction books. Rental limits: <strong>5 books per month.</strong></p>
+                    </div>
+                    <div class="card-footer">
+                        <a href="" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="" class="btn btn-danger btn-sm">Delete</a>
+                        
+                    </div>
+                </div>
+            </div>
+
+            <!-- Platinum Plan -->
+            <div class="col">
+                <div class="card h-100 shadow-sm border-primary">
+                    <div class="card-body">
+                        <h5 class="card-title text-primary">Platinum Plan</h5>
+                        <p class="card-text">This plan includes access to Fiction, Non-Fiction, and Biographies. Rental limits: <strong>10 books per month.</strong></p>
+                    </div>
+                    <div class="card-footer">
+                        <a href="" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="" class="btn btn-danger btn-sm">Delete</a>
+                        
+                    </div>
+                </div>
+            </div>
+
+            <!-- Diamond Plan -->
+            <div class="col">
+                <div class="card h-100 shadow-sm border-success">
+                    <div class="card-body">
+                        <h5 class="card-title text-success">Diamond Plan</h5>
+                        <p class="card-text">This plan provides unlimited access to all categories, including Research and Study materials. Rental limits: <strong>Unlimited rentals.</strong></p>
+                    </div>
+                    <div class="card-footer">
+                        <a href="" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="" class="btn btn-danger btn-sm">Delete</a>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="mt-4">
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

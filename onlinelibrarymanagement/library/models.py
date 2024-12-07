@@ -19,13 +19,16 @@ class Category(models.Model):
         return self.category_name
     
 class Book(models.Model):
-    ISBN = models.BigIntegerField()
+    ISBN = models.CharField(max_length=13, unique=True)
     book_title = models.CharField(max_length=250)
     price = models.DecimalField(max_digits=10, decimal_places=2)  
     rent_price = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.CharField(max_length=550)
     hide_book  = models.BooleanField(default=False)
+    added_date = models.DateTimeField(auto_now_add=True, verbose_name="Date Added")
     stock_quantity = models.IntegerField()
+    book_image =  models.ImageField(upload_to='library/images/')
+    content_file = models.FileField(upload_to='library/books/', verbose_name="Book Content")
     publication_date = models.DateTimeField()
     author = models.ForeignKey(Authors,related_name="books",on_delete = models.CASCADE)
     category = models.ForeignKey(Category,related_name="books", on_delete=models.DO_NOTHING)
@@ -36,6 +39,7 @@ class Book(models.Model):
     
 class SubscriptionPlans(models.Model):
     plan_name = models.CharField(max_length=250)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
     duration = models.IntegerField()
 
     def __str__(self):
@@ -48,8 +52,8 @@ class Subscriptions(models.Model):
     user = models.ForeignKey(User,related_name="subscriptions",on_delete=models.DO_NOTHING)
 
 
-    # def __str__(self):
-    #     return self.user
+    def __str__(self):
+        return self.user.username
 
 
 
