@@ -1,13 +1,15 @@
-from datetime import timedelta, timezone
+from datetime import timedelta
 from django.http import HttpResponse
+from django.utils import timezone
 from django.shortcuts import get_object_or_404, render,redirect
+from django.contrib import messages
 # from onlinelibrarymanagement.library.forms import MyLoginForm
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 
-from .models import Authors, Book, Category, Rent, SubscriptionPlans, Subscriptions
-from .forms import AddAuthorForm, AddBookForm, AddCategoryForm, EditAuthorForm, EditBookForm, EditCategoryForm, MyLoginForm, userRegistrationForm
+from .models import Authors, Book, Category, PlanCategory, Rent, SubscriptionPlans, Subscriptions
+from .forms import AddAuthorForm, AddBookForm, AddCategoryForm, EditAuthorForm, EditBookForm, EditCategoryForm, MyLoginForm,  userRegistrationForm
 from django.contrib.auth import authenticate,login,logout
 
 # Create your views here.
@@ -550,15 +552,16 @@ def author_list(request):
 def category_list(request):
     search_query = request.GET.get('search', '')  # Capture the search term
     if search_query:
-        categories = Category.objects.filter(category_name__icontains=search_query)  # Case-insensitive search
+        categories = Category.objects.prefetch_related('plans__plan').filter(category_name__icontains=search_query)  # Case-insensitive search with related plans
     else:
-        categories = Category.objects.all()  # Fetch all categories if no search query
+        categories = Category.objects.prefetch_related('plans__plan').all()  # Fetch all categories with related plans
 
     context = {
         'category_list': categories,
         'search_query': search_query,
     }
     return render(request, 'library/admin_view_category.html', context)
+
 
 def view_subscriptions(request):
     subscriptions_list = SubscriptionPlans.objects.all()
@@ -572,7 +575,6 @@ def view_all_books_home(request):
     view_books = Book.objects.all()
     print(view_books)
     return render(request,'library/topbar.html',{"view_books":view_books})
-
 
 
 # def rent_book(request, book_id):
@@ -608,40 +610,49 @@ def view_all_books_home(request):
 #     return redirect('rental_success')
 
 
-from django.contrib import messages
 
 def rent_book(request, book_id):
     # Assuming you have access to the current logged-in user
     user = request.user
     try:
-        # Get the book by ID
         book = Book.objects.get(id=book_id)
     except Book.DoesNotExist:
         messages.error(request, "The book you are trying to rent does not exist.")
         return redirect('home_path')
 
     try:
-        # Get the user's subscription plan
-        subscription = Subscriptions.objects.get(user=user)
+        # Get the user's active subscription plan
+        #gte is greater than or equal to
+        subscription = Subscriptions.objects.filter(user=user, end_date__gte=timezone.now()).first() 
+        if not subscription:
+            messages.info(request, "You are not subscribed to any active plan. Please subscribe to a plan to rent books.")
+            return redirect('view_subscriptions_plans_user')  
+
         plan = subscription.plan  # This gives you the SubscriptionPlans object
     except Subscriptions.DoesNotExist:
         # If the user is not subscribed to any plan
         messages.info(request, "You are not subscribed to any plan. Please subscribe to a plan to rent books.")
-        return redirect('view_subscriptions_plans_user')  # Redirect to subscriptions page
+        return redirect('view_subscriptions_plans_user')  
+
+    # Check if the user's subscription plan allows access to the book's category
+    allowed_categories = PlanCategory.objects.filter(plan=plan).values_list('category', flat=True)
+    if book.category.id not in allowed_categories:
+        messages.info(request, "Your subscription plan does not give you access to this book's category. Please subscribe to a higher plan.")
+        return redirect('view_subscriptions_plans_user')  
 
     # Set rental duration based on the subscription plan
     if plan.plan_name == "Gold":
-        rental_duration = timedelta(days=28)  # 28 days for Gold Plan
+        rental_duration = timedelta(days=28)  
     elif plan.plan_name == "Platinum":
-        rental_duration = timedelta(days=60)  # 2 months for Platinum Plan
+        rental_duration = timedelta(days=60) 
     elif plan.plan_name == "Diamond":
-        rental_duration = timedelta(days=90)  # 3 months for Diamond Plan
+        rental_duration = timedelta(days=90)  
     else:
         rental_duration = timedelta(days=28)  # Default to 28 days if plan is not recognized
 
     # Show confirmation to the user about renting the book
     if request.method == 'POST':
-        # If confirmed, create a rental record
+      
         rental_end_date = timezone.now() + rental_duration
         rental = Rent.objects.create(
             user=user,
@@ -649,7 +660,7 @@ def rent_book(request, book_id):
             rent_date=timezone.now(),
             expiry_date=rental_end_date
         )
-        messages.success(request, f"You have rented '{book.book_title}' for {rental_duration.days} days.")
+        messages.success(request, f"You have rented '{book.book_title}' for {rental_duration.days} days. Rental ID: {rental.id}")
         return redirect('rental_success')  # Redirect to a success page or book details
 
     # If it's not a POST request, show the confirmation page
@@ -660,6 +671,16 @@ def rent_book(request, book_id):
     })
 
 
-
 def rental_success(request):
     return render(request, 'library/rental_success.html')
+
+
+def add_category(request):
+    if request.method == 'POST':
+        form = AddCategoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('category_list')  # Redirect to a category list or success page
+    else:
+        form = AddCategoryForm()
+    return render(request, 'library/add_category_from_admin.html', {'form': form})

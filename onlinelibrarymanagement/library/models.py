@@ -57,8 +57,8 @@ class Subscriptions(models.Model):
     
 
 class PlanCategory(models.Model):
-    plan = models.ForeignKey(SubscriptionPlans,related_name="subscriptions", on_delete=models.CASCADE)
-    category = models.ForeignKey(Category,related_name="category",on_delete=models.CASCADE)
+    plan = models.ForeignKey(SubscriptionPlans,related_name="plans", on_delete=models.CASCADE)
+    category = models.ForeignKey(Category,related_name="plans",on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.plan.plan_name} - {self.category.category_name}"
@@ -67,7 +67,7 @@ class PlanCategory(models.Model):
 class Rent(models.Model):
     user = models.ForeignKey(User,related_name="rent_details",on_delete=models.CASCADE)
     book = models.ForeignKey(Book,related_name="rent_details",on_delete=models.CASCADE)
-    rent_date = models.DateField(auto_now_add=True)
+    rent_date = models.DateTimeField(auto_now_add=True)
     expiry_date = models.DateField()
 
 

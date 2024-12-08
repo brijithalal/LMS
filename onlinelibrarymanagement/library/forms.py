@@ -2,7 +2,7 @@
 from typing import Any
 from django import forms
 from django.shortcuts import redirect, render
-from .models import  Authors, Book, Category, User
+from .models import  Authors, Book, Category, PlanCategory, SubscriptionPlans, User
 from django.core.exceptions import ValidationError
 
 class MyLoginForm(forms.Form):
@@ -71,10 +71,10 @@ class AddAuthorForm(forms.ModelForm):
         model = Authors   
         fields = ('author_name',)     
 
-class AddCategoryForm(forms.ModelForm):
-    class Meta:
-        model = Category
-        fields = ('category_name',)
+# class AddCategoryForm(forms.ModelForm):
+#     class Meta:
+#         model = Category
+#         fields = ('category_name',)
 
 
 class EditBookForm(forms.ModelForm):
@@ -86,8 +86,62 @@ class EditAuthorForm(forms.ModelForm):
     class Meta:
         model = Authors
         fields = ('author_name',)
-class EditCategoryForm(forms.ModelForm):
+
+# class EditCategoryForm(forms.ModelForm):
+#     class Meta:
+#         model = Category
+#         fields = ('category_name',)
+
+
+class AddCategoryForm(forms.ModelForm):
+    plans = forms.ModelMultipleChoiceField(
+        queryset=SubscriptionPlans.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+        label="Subscription Plans"
+    )
+
     class Meta:
         model = Category
-        fields = ('category_name',)
+        fields = ['category_name',]
 
+    def save(self, commit=True):
+        # Save the category instance
+        category = super().save(commit=False)
+        if commit:
+            category.save()
+        # Add selected plans to the PlanCategory table
+        if 'plans' in self.cleaned_data:
+            selected_plans = self.cleaned_data['plans']
+            for plan in selected_plans:
+                PlanCategory.objects.create(plan=plan, category=category)
+        return category
+    
+
+    
+class EditCategoryForm(forms.ModelForm):
+    plans = forms.ModelMultipleChoiceField(
+        queryset=SubscriptionPlans.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+        label="Subscription Plans"
+    )
+
+    class Meta:
+        model = Category
+        fields = ['category_name',]
+
+    def save(self, commit=True):
+        # Save the category instance
+        category = super().save(commit=False)
+        if commit:
+            category.save()
+        # Add selected plans to the PlanCategory table
+        if 'plans' in self.cleaned_data:
+            selected_plans = self.cleaned_data['plans']
+
+             # Clear existing plans for the category
+            category.plans.all().delete()
+            for plan in selected_plans:
+                PlanCategory.objects.create(plan=plan, category=category)
+        return category
