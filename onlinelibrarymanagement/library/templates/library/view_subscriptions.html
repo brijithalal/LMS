@@ -17,11 +17,11 @@
                 <div class="card h-100 shadow-sm border-warning">
                     <div class="card-body">
                         <h5 class="card-title text-warning">Gold Plan</h5>
-                        <p class="card-text">This plan provides access to Fiction and Non-Fiction books. Rental limits: <strong>28 days.</strong></p>
+                        <p class="card-text">This plan provides access to Fiction and Rental limits: <strong>28 days.</strong></p>
                     </div>
                     <div class="card-footer">
-                        <a href="" class="btn btn-warning btn-sm">Edit</a>
-                        <a href="" class="btn btn-danger btn-sm">Delete</a>
+                        <a href="{% url 'edit_subscriptions' 1%}" class="btn btn-warning btn-sm">Edit</a>
+                        
                         
                     </div>
                 </div>
@@ -35,8 +35,10 @@
                         <p class="card-text">This plan includes access to Fiction, Non-Fiction, and Biographies. Rental limits: <strong>60 days.</strong></p>
                     </div>
                     <div class="card-footer">
-                        <a href="" class="btn btn-warning btn-sm">Edit</a>
-                        <a href="" class="btn btn-danger btn-sm">Delete</a>
+                        
+                        <a href="{% url 'edit_subscriptions' 2%}" class="btn btn-warning btn-sm">Edit</a>
+                        
+                        
                         
                     </div>
                 </div>
@@ -47,17 +49,17 @@
                 <div class="card h-100 shadow-sm border-success">
                     <div class="card-body">
                         <h5 class="card-title text-success">Diamond Plan</h5>
-                        <p class="card-text">This plan provides unlimited access to all categories, including Research and Study materials. Rental limits: <strong>Unlimited rentals.</strong></p>
+                        <p class="card-text">This plan provides unlimited access to all categories, including Research and Study materials. Rental limits: <strong>100 days.</strong></p>
                     </div>
                     <div class="card-footer">
-                        <a href="" class="btn btn-warning btn-sm">Edit</a>
-                        <a href="" class="btn btn-danger btn-sm">Delete</a>
+                        <a href="{% url 'edit_subscriptions' 3%}" class="btn btn-warning btn-sm">Edit</a>
+                       
                         
                     </div>
                 </div>
             </div>
         </div>
-
+    
         <!-- Back Button -->
         <div class="mt-4">
             <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>

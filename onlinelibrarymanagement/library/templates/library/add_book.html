@@ -18,7 +18,7 @@
 </body>
 </html> {% endcomment %}
 
-<!DOCTYPE html>
+{% comment %} <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -54,7 +54,7 @@
         <h3 class="text-center text-primary form-header">Add Book</h3>
         <form action="" method="post" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
-            
+             {% endcomment %}
             <!-- Render Django form fields -->
             {% comment %} {{ add_book_form.ISBN }}
             {{ add_book_form.book_title }}
@@ -70,87 +70,87 @@
                 {% comment %} </div> {% endcomment %}
             {% comment %} </div> {% endcomment %}
  <!-- ISBN -->
- <div class="row mb-3 align-items-center">
+ {% comment %} <div class="row mb-3 align-items-center">
     <label for="id_ISBN" class="col-sm-3 col-form-label">ISBN</label>
     <div class="col-sm-7">
         {{ add_book_form.ISBN }}
     </div>
-</div>
+</div> {% endcomment %}
 
 <!-- Book Title -->
-<div class="row mb-3 align-items-center">
+{% comment %} <div class="row mb-3 align-items-center">
     <label for="id_book_title" class="col-sm-3 col-form-label">Book Title</label>
     <div class="col-sm-7">
         {{ add_book_form.book_title }}
     </div>
-</div>
+</div> {% endcomment %}
 
 <!-- Price -->
-<div class="row mb-3 align-items-center">
+{% comment %} <div class="row mb-3 align-items-center">
     <label for="id_price" class="col-sm-3 col-form-label">Price</label>
     <div class="col-sm-7">
         {{ add_book_form.price }}
     </div>
-</div>
+</div> {% endcomment %}
 
 <!-- Rent Price -->
-<div class="row mb-3 align-items-center">
+{% comment %} <div class="row mb-3 align-items-center">
     <label for="id_rent_price" class="col-sm-3 col-form-label">Rent Price</label>
     <div class="col-sm-7">
         {{ add_book_form.rent_price }}
     </div>
-</div>
+</div> {% endcomment %}
 
 <!-- Description -->
-<div class="row mb-3 align-items-center">
+{% comment %} <div class="row mb-3 align-items-center">
     <label for="id_description" class="col-sm-3 col-form-label">Description</label>
     <div class="col-sm-7">
         {{ add_book_form.description }}
     </div>
-</div>
+</div> {% endcomment %}
 
 <!-- Hide Book -->
-<div class="row mb-3 align-items-center">
+{% comment %} <div class="row mb-3 align-items-center">
     <label for="id_hide_book" class="col-sm-3 col-form-label">Hide Book</label>
     <div class="col-sm-7">
         {{ add_book_form.hide_book }}
     </div>
-</div>
+</div> {% endcomment %}
 
 <!-- Stock Quantity -->
-<div class="row mb-3 align-items-center">
+{% comment %} <div class="row mb-3 align-items-center">
     <label for="id_stock_quantity" class="col-sm-3 col-form-label">Stock Quantity</label>
     <div class="col-sm-7">
         {{ add_book_form.stock_quantity }}
     </div>
-</div>
+</div> {% endcomment %}
 
 <!-- Book Image -->
-<div class="row mb-3 align-items-center">
+{% comment %} <div class="row mb-3 align-items-center">
     <label for="id_book_image" class="col-sm-3 col-form-label">Book Image</label>
     <div class="col-sm-7">
         {{ add_book_form.book_image }}
     </div>
-</div>
+</div> {% endcomment %}
 
 <!-- Content File -->
-<div class="row mb-3 align-items-center">
+{% comment %} <div class="row mb-3 align-items-center">
     <label for="id_content_file" class="col-sm-3 col-form-label">Content File</label>
     <div class="col-sm-7">
         {{ add_book_form.content_file }}
     </div>
-</div>
+</div> {% endcomment %}
 
 <!-- Publication Date -->
-<div class="row mb-3 align-items-center">
+{% comment %} <div class="row mb-3 align-items-center">
     <label for="id_publication_date" class="col-sm-3 col-form-label">Publication Date</label>
     <div class="col-sm-7">
         {{ add_book_form.publication_date }}
     </div>
-</div>
+</div> {% endcomment %}
 
 <!-- Author -->
-<div class="row mb-3 align-items-center">
+{% comment %} <div class="row mb-3 align-items-center">
     <label for="id_author" class="col-sm-3 col-form-label">Author</label>
     <div class="col-sm-7">
         {{ add_book_form.author }}
@@ -158,10 +158,10 @@
     <div class="col-sm-2">
         <a href="{% url 'add_author_book' %}" class="btn btn-outline-secondary btn-sm">+</a>
     </div>
-</div>
+</div> {% endcomment %}
 
 <!-- Category -->
-<div class="row mb-3 align-items-center">
+{% comment %} <div class="row mb-3 align-items-center">
     <label for="id_category" class="col-sm-3 col-form-label">Category</label>
     <div class="col-sm-7">
         {{ add_book_form.category }}
@@ -169,21 +169,21 @@
     <div class="col-sm-2">
         <a href="{% url 'add_category_book' %}" class="btn btn-outline-secondary btn-sm">+</a>
     </div>
-</div>
+</div> {% endcomment %}
 
             
 
             {% comment %} <a href="{% url 'add_author' %}" class="btn btn-outline-secondary btn-sm">+</a> {% endcomment %}
 
             <!-- Submit Button -->
-            <button type="submit" class="btn btn-primary mt-3">Save</button>
+            {% comment %} <button type="submit" class="btn btn-primary mt-3">Save</button>
         </form>
-    </div>
+    </div> {% endcomment %}
 
     <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% comment %} <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-</html> 
+</html>  {% endcomment %}
 
 
 {% comment %} <!DOCTYPE html>
@@ -256,3 +256,124 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html> {% endcomment %} 
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Book</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+        .form-container {
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .form-header {
+            margin-bottom: 20px;
+        }
+        .btn {
+            width: 50%;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h3 class="text-center text-primary form-header">Add Book</h3>
+        <form action="" method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+            
+            <!-- ISBN -->
+            <div class="mb-3">
+                {{ add_book_form.ISBN }}
+            </div>
+
+            <!-- Book Title -->
+            <div class="mb-3">
+                {{ add_book_form.book_title }}
+            </div>
+
+            <!-- Price -->
+            <div class="mb-3">
+                {{ add_book_form.price }}
+            </div>
+
+            <!-- Rent Price -->
+            <div class="mb-3">
+                {{ add_book_form.rent_price }}
+            </div>
+
+            <!-- Description -->
+            <div class="mb-3">
+                {{ add_book_form.description }}
+            </div>
+
+            <!-- Hide Book -->
+            <div class="form-check mb-3">
+                {{ add_book_form.hide_book }}
+                <label for="id_hide_book" class="form-check-label">Hide Book</label>
+            </div>
+
+            <!-- Stock Quantity -->
+            <div class="mb-3">
+                {{ add_book_form.stock_quantity }}
+            </div>
+
+            <!-- Book Image -->
+            <div class="mb-3">
+                {{ add_book_form.book_image }}
+            </div>
+
+            <!-- Content File -->
+            <div class="mb-3">
+                {{ add_book_form.content_file }}
+            </div>
+
+            <!-- Publication Date -->
+            <div class="mb-3">
+                {{ add_book_form.publication_date }}
+            </div>
+
+            <!-- Author -->
+            <div class="row mb-3">
+                <div class="col-10">
+                    {{ add_book_form.author }}
+                </div>
+                <div class="col-2">
+                    <a href="{% url 'add_author_book' %}" class="btn btn-outline-secondary btn-sm">+</a>
+                </div>
+            </div>
+
+            <!-- Category -->
+            <div class="row mb-3">
+                <div class="col-10">
+                    {{ add_book_form.category }}
+                </div>
+                <div class="col-2">
+                    <a href="{% url 'add_category_book' %}" class="btn btn-outline-secondary btn-sm">+</a>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary mt-3">Save</button>
+        </form>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

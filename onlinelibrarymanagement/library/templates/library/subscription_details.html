@@ -1,0 +1,61 @@
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ plan.plan_name }} Details</title>
+</head>
+<body>
+    <h1>{{ plan.plan_name }} - ₹{{ plan.price }}</h1>
+    <p>Duration: {{ plan.duration }} days</p>
+    <p>Accessible Categories:</p>
+    <ul>
+        {% for category in categories %}
+        <li>{{ category }}</li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'subscribe' plan.id %}">Proceed to Subscribe</a>
+</body>
+</html> {% endcomment %}
+
+
+<!-- plan_details.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ plan.plan_name }} - Subscription Details</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container py-5">
+        <h1 class="text-center text-primary mb-4">{{ plan.plan_name }} - Subscription Details</h1>
+
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ plan.plan_name }}</h5>
+                        <p class="card-text">Price: ${{ plan.price }}</p>
+                        <p class="card-text">Duration: {{ plan.duration }} months</p>
+                        <p class="card-text">This plan gives you access to exclusive content and resources.</p>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="{% url 'confirm_subscription' plan.id %}" class="btn btn-success">Proceed to Subscribe</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <a href="{% url 'home' %}" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

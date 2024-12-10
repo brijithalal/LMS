@@ -46,10 +46,15 @@ class SubscriptionPlans(models.Model):
         return self.plan_name
     
 class Subscriptions(models.Model):
+    plan_status =(
+        (1,'Active'),
+        (2,'Expired')
+    )
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     plan = models.ForeignKey(SubscriptionPlans,related_name="plan_categories",on_delete=models.CASCADE)
     user = models.ForeignKey(User,related_name="plan_categories",on_delete=models.DO_NOTHING)
+    status = models.PositiveSmallIntegerField(choices=plan_status,default=2)
 
 
     def __str__(self):
@@ -73,3 +78,30 @@ class Rent(models.Model):
 
     def __str__(self):
         return f"{self.user.username}"
+
+
+
+
+
+
+
+
+
+
+# def edit_category(request,pk):
+#     category_details = get_object_or_404(Category, id=pk)
+#     # plan_details = get_object_or_404(PlanCategory,id = pk)
+
+#     if request.method == 'POST':
+#         edit_category = EditCategoryForm(request.POST or None,request.FILES or None,instance=category_details)
+
+#         if edit_category.is_valid():
+#             edit_category.save()
+
+#             return redirect('view_category')
+#         else:
+#             print(edit_category.errors)
+#     else:
+
+#         edit_category  = EditCategoryForm(instance=category_details)
+#     return render(request,'library/edit_category.html',{'edit_category_form':edit_category})

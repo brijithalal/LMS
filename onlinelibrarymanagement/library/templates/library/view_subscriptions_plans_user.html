@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+ {% comment %} <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -10,54 +10,35 @@
 <body>
     <div class="container py-5">
         <h1 class="text-center text-primary mb-4">Membership and Rentals</h1>
-
+    
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-            <!-- Gold Plan -->
+            {% for plan in subscriptions_list %}
             <div class="col">
-                <div class="card h-100 shadow-sm border-warning">
+                <div class="card h-100 shadow-sm">
                     <div class="card-body">
-                        <h5 class="card-title text-warning">Gold Plan</h5>
-                        <p class="card-text">This plan provides access to Fiction and Non-Fiction books. Rental limits: <strong>5 books per month.</strong></p>
+                        <h5 class="card-title">{{ plan.plan_name }}</h5>
+                        <p class="card-text">
+                            <strong>Price:</strong> ₹{{ plan.price }}<br>
+                            <strong>Duration:</strong> {{ plan.duration }} days<br>
+                            <strong>Accessible Categories:</strong>
+                            <ul>
+                                {% for plan_category in plan.plans.all %}
+                                <li>{{ plan_category.category.category_name }}</li>
+                                {% empty %}
+                                <li>No categories available.</li>
+                                {% endfor %}
+                            </ul>
+                            
+                        </p>
                     </div>
                     <div class="card-footer">
-                        <a href="" class="btn btn-warning btn-sm">Subscribe</a>
-                        {% comment %} <a href="" class="btn btn-danger btn-sm">Delete</a> {% endcomment %}
-                        
+                        <a href="#" class="btn btn-primary btn-sm">Subscribe</a>
                     </div>
                 </div>
             </div>
-
-            <!-- Platinum Plan -->
-            <div class="col">
-                <div class="card h-100 shadow-sm border-primary">
-                    <div class="card-body">
-                        <h5 class="card-title text-primary">Platinum Plan</h5>
-                        <p class="card-text">This plan includes access to Fiction, Non-Fiction, and Biographies. Rental limits: <strong>10 books per month.</strong></p>
-                    </div>
-                    <div class="card-footer">
-                        <a href="" class="btn btn-warning btn-sm">Subscribe</a>
-                        {% comment %} <a href="" class="btn btn-danger btn-sm">Delete</a> {% endcomment %}
-                        
-                    </div>
-                </div>
-            </div>
-
-            <!-- Diamond Plan -->
-            <div class="col">
-                <div class="card h-100 shadow-sm border-success">
-                    <div class="card-body">
-                        <h5 class="card-title text-success">Diamond Plan</h5>
-                        <p class="card-text">This plan provides unlimited access to all categories, including Research and Study materials. Rental limits: <strong>Unlimited rentals.</strong></p>
-                    </div>
-                    <div class="card-footer">
-                        <a href="" class="btn btn-warning btn-sm">Subscribe</a>
-                        {% comment %} <a href="" class="btn btn-danger btn-sm">Delete</a> {% endcomment %}
-                        
-                    </div>
-                </div>
-            </div>
+            {% endfor %}
         </div>
-
+    
         <!-- Back Button -->
         <div class="mt-4">
             <a href="{% url 'home_path' %}" class="btn btn-secondary">Back to Dashboard</a>
@@ -67,4 +48,401 @@
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-</html> 
+</html>    {% endcomment %}
+
+
+
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Membership and Rentals</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(to bottom, #ffffff, #f8f9fa); /* Soft gradient background */
+            color: #343a40; /* Dark gray text */
+        }
+
+        h1 {
+            font-weight: bold;
+            color: #007bff; /* Vibrant blue heading */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); /* Subtle text shadow */
+        }
+
+        .card {
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background-color: #ffffff; /* White card */
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Elevated shadow */
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #007bff; /* Vibrant blue */
+        }
+
+        .card-text {
+            font-size: 0.9rem;
+            color: #6c757d; /* Subtle text color */
+        }
+
+        .card-footer {
+            background-color: #f8f9fa; /* Light gray footer */
+        }
+
+        .btn-primary {
+            background-color: #007bff; /* Vibrant blue */
+            border: none;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+            transform: scale(1.05);
+        }
+
+        .btn-secondary {
+            background-color: #6c757d; /* Subtle gray */
+            border: none;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268; /* Darker gray on hover */
+        }
+
+        .container {
+            padding: 40px 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <h1 class="text-center mb-5">Membership and Rentals</h1>
+
+        <!-- Subscription Plans -->
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for plan in subscriptions_list %}
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">{{ plan.plan_name }}</h5>
+                        <p class="card-text">
+                            <strong>Price:</strong> ₹{{ plan.price }}<br>
+                            <strong>Duration:</strong> {{ plan.duration }} days<br>
+                            <strong>Accessible Categories:</strong>
+                        </p>
+                        <ul class="list-group list-group-flush">
+                            {% for plan_category in plan.plans.all %}
+                            <li class="list-group-item">{{ plan_category.category.category_name }}</li>
+                            {% empty %}
+                            <li class="list-group-item">No categories available.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="#" class="btn btn-primary btn-sm">Subscribe</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Back Button -->
+        <div class="mt-4 text-center">
+            <a href="{% url 'home_path' %}" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> {% endcomment %}
+
+
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Membership and Rentals</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(to bottom, #f8f9fa, #ffffff); /* Light gradient background */
+            color: #343a40; /* Dark gray text */
+        }
+
+        h1 {
+            font-weight: bold;
+            color: #007bff; /* Vibrant blue heading */
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2); /* Subtle text shadow */
+        }
+
+        .card {
+            border: 2px solid #007bff; /* Blue border for cards */
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background-color: #ffffff; /* White card */
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.2); /* Elevated shadow with blue tint */
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #007bff; /* Vibrant blue */
+        }
+
+        .card-text {
+            font-size: 1rem;
+            color: #495057; /* Darker gray text */
+        }
+
+        .card-footer {
+            background-color: #f8f9fa; /* Light gray footer */
+            border-top: 1px solid #007bff; /* Blue border at the top of the footer */
+        }
+
+        .list-group-item {
+            border: none; /* No borders for list items */
+            padding: 0.5rem 0;
+        }
+
+        .btn-primary {
+            background-color: #007bff; /* Vibrant blue */
+            border: none;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+            transform: scale(1.1);
+        }
+
+        .btn-secondary {
+            background-color: #6c757d; /* Subtle gray */
+            border: none;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268; /* Darker gray on hover */
+        }
+
+        .container {
+            padding: 50px 20px;
+        }
+
+        .row {
+            margin-top: 20px;
+        }
+
+        .back-btn {
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <h1 class="text-center mb-5">Membership and Rentals</h1>
+
+        <!-- Subscription Plans -->
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for plan in subscriptions_list %}
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">{{ plan.plan_name }}</h5>
+                        <p class="card-text">
+                            <strong>Price:</strong> ₹{{ plan.price }}<br>
+                            <strong>Duration:</strong> {{ plan.duration }} days<br>
+                            <strong>Accessible Categories:</strong>
+                        </p>
+                        <ul class="list-group list-group-flush">
+                            {% for plan_category in plan.plans.all %}
+                            <li class="list-group-item">{{ plan_category.category.category_name }}</li>
+                            {% empty %}
+                            <li class="list-group-item">No categories available.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="#" class="btn btn-primary btn-sm w-75">Subscribe</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Back Button -->
+        <div class="text-center back-btn">
+            <a href="{% url 'home_path' %}" class="btn btn-secondary btn-lg">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> {% endcomment %}
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Membership and Rentals</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(to bottom, #f8f9fa, #ffffff); /* Light gradient background */
+            color: #343a40; /* Dark gray text */
+        }
+
+        h1 {
+            font-weight: bold;
+            color: #007bff; /* Vibrant blue heading */
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2); /* Subtle text shadow */
+        }
+
+        .card {
+            border: 2px solid #007bff; /* Blue border for cards */
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background-color: #ffffff; /* White card */
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.2); /* Elevated shadow with blue tint */
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #007bff; /* Vibrant blue */
+        }
+
+        .card-text {
+            font-size: 1rem;
+            color: #495057; /* Darker gray text */
+        }
+
+        .card-footer {
+            background-color: #f8f9fa; /* Light gray footer */
+            border-top: 1px solid #007bff; /* Blue border at the top of the footer */
+        }
+
+        .list-group-item {
+            border: none; /* No borders for list items */
+            padding: 0.5rem 0;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #007bff, #0056b3); /* Gradient blue button */
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 30px;
+            box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3); /* Soft shadow */
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(90deg, #0056b3, #003d80); /* Darker gradient on hover */
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0, 123, 255, 0.5); /* More prominent shadow */
+        }
+
+        .btn-secondary {
+            background: linear-gradient(90deg, #6c757d, #495057); /* Gradient gray button */
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 30px;
+            box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3); /* Soft shadow */
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(90deg, #495057, #343a40); /* Darker gradient on hover */
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(108, 117, 125, 0.5); /* More prominent shadow */
+        }
+
+        .container {
+            padding: 50px 20px;
+        }
+
+        .row {
+            margin-top: 20px;
+        }
+
+        .back-btn {
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <h1 class="text-center mb-5">Membership and Rentals</h1>
+
+        <!-- Subscription Plans -->
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for plan in subscriptions_list %}
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">{{ plan.plan_name }}</h5>
+                        <p class="card-text">
+                            <strong>Price:</strong> ₹{{ plan.price }}<br>
+                            <strong>Duration:</strong> {{ plan.duration }} days<br>
+                            <strong>Accessible Categories:</strong>
+                        </p>
+                        <ul class="list-group list-group-flush">
+                            {% for plan_category in plan.plans.all %}
+                            <li class="list-group-item">{{ plan_category.category.category_name }}</li>
+                            {% empty %}
+                            <li class="list-group-item">No categories available.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="#" class="btn btn-primary btn-sm w-75">Subscribe</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Back Button -->
+        <div class="text-center back-btn">
+            <a href="{% url 'home_path' %}" class="btn btn-secondary btn-lg">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

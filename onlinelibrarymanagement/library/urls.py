@@ -10,6 +10,7 @@ urlpatterns =[
     path('accounts/register/',views.register,name='register'),
     path('admin_dashboard/add_book/',views.add_books,name="add_book"),
     path('admin_dashboard/view_book/',views.admin_book_list,name = "admin_book_list"),
+    path('admin_dashboard/view_book_details/<int:pk>/',views.view_book_details,name="view_book_details"),
     path('admin_dashboard/delete_book/<int:pk>/', views.delete_book, name='delete_book'),
     path('admin_dashboard/add_author_book/',views.add_authors_from_book,name = "add_author_book"),
     path('admin_dashboard/add_author_admin/',views.add_authors_admin,name="add_author_admin"),
@@ -28,6 +29,7 @@ urlpatterns =[
     path('rent_book/<int:book_id>/', views.rent_book, name='rent_book'),
     path('rental_success/', views.rental_success, name='rental_success'),
     path('view_subscriptions_plan_user/',views.view_subscriptions_plan_user,name = "view_subscriptions_plans_user"),
-    path('logout/',views.custom_logout,name="logout")
+    path('logout/',views.custom_logout,name="logout"),
+    path('admin_dashboard/edit_subscriptions/<int:pk>/',views.edit_subscriptions,name='edit_subscriptions')
 
 ]

@@ -8,12 +8,12 @@ from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 
-from .models import Authors, Book, Category, PlanCategory, Rent, SubscriptionPlans, Subscriptions
-from .forms import AddAuthorForm, AddBookForm, AddCategoryForm, EditAuthorForm, EditBookForm, EditCategoryForm, MyLoginForm,  userRegistrationForm
+from .models import Authors, Book, Category, PlanCategory, Rent, SubscriptionPlans, Subscriptions,User
+from .forms import AddAuthorForm, AddBookForm, AddCategoryForm, EditAuthorForm, EditBookForm, EditCategoryForm, EditSubscriptionForm, MyLoginForm,  userRegistrationForm
 from django.contrib.auth import authenticate,login,logout
 
 # Create your views here.
-def home(request):
+def home(request):  
     if request.user.is_authenticated and request.session['group_name']=='admin':
         return redirect("admin_dashboard")
         
@@ -51,35 +51,39 @@ def home(request):
 #                   {'login_form':login_form})
 
 def user_login(request):
-    if request.method == 'POST':
-        # We will be getting username and password through POST
-        login_form = MyLoginForm(request.POST)
-        if login_form.is_valid():
-            cleaned_data = login_form.cleaned_data
-            auth_user = authenticate(request, username=cleaned_data['username'], password=cleaned_data['password'])
-
-            if auth_user is not None:
-                login(request, auth_user)
-                # Get the user's group name
-                group = auth_user.groups.first()
-                group_name = group.name if group else "No group"
-                request.session['group_name'] = group_name
-
-                # Check if the user is an admin and redirect accordingly
-                if request.session['group_name']=='admin' :
-                    # Redirect to the admin dashboard if user is an admin
-                    return redirect('admin_dashboard')  # Ensure 'admin_dashboard' is correctly defined in your URLs
-                else:
-                    # Redirect to a regular user's home or another page
-                    return redirect('home_path')  # Adjust the redirect as per your logic
-                
-            else:
-                return HttpResponse('Not Authenticated')
-    else:
-        # If the form is invalid or GET request, send the form again
-        login_form = MyLoginForm()
     
-    return render(request, 'library/login_form.html', {'login_form': login_form})
+    if request.user.is_authenticated:
+        return redirect('home_path')
+    else:
+        if request.method == 'POST':
+            # We will be getting username and password through POST
+            login_form = MyLoginForm(request.POST)
+            if login_form.is_valid():
+                cleaned_data = login_form.cleaned_data
+                auth_user = authenticate(request, username=cleaned_data['username'], password=cleaned_data['password'])
+
+                if auth_user is not None:
+                    login(request, auth_user)
+                    # Get the user's group name
+                    group = auth_user.groups.first()
+                    group_name = group.name if group else "No group"
+                    request.session['group_name'] = group_name
+
+                    # Check if the user is an admin and redirect accordingly
+                    if request.session['group_name']=='admin' :
+                        # Redirect to the admin dashboard if user is an admin
+                        return redirect('admin_dashboard')  # Ensure 'admin_dashboard' is correctly defined in your URLs
+                    else:
+                        # Redirect to a regular user's home or another page
+                        return redirect('home_path')  # Adjust the redirect as per your logic
+                    
+                else:
+                    return HttpResponse('Not Authenticated')
+        else:
+            # If the form is invalid or GET request, send the form again
+            login_form = MyLoginForm()
+        
+        return render(request, 'library/login_form.html', {'login_form': login_form})
 from django.shortcuts import render
 from django.http import HttpResponse
 
@@ -116,7 +120,7 @@ def register(request):
         return render(request,'library/register_form.html',{'user_req_form':user_req_form})
     
 
-
+@login_required
 def custom_logout(request):
     logout(request)# destroy all the session id for a particular user
     return redirect('home_path')
@@ -224,7 +228,7 @@ def custom_logout(request):
 
 #     return render(request, 'library/add_book.html', {'add_book_form': add_book})
 
-
+@login_required
 def add_books(request):
     # Initialize the form with session data if available
     book_data = request.session.get('book_data', {})
@@ -302,7 +306,7 @@ def add_books(request):
 
 #     return render(request, 'library/add_book.html', {'add_book_form': add_book})
 
-
+@login_required
 def edit_books(request,pk):
     if request.method == 'POST':
         book_details = get_object_or_404(Book, id=pk)
@@ -370,7 +374,7 @@ def delete_book(request,pk):
 #     return render(request, 'library/add_author_from_addbookform.html', {'add_author_form': add_author})
 
 
-
+@login_required
 def add_authors_from_book(request):
     if request.method == 'POST':
         add_author = AddAuthorForm(request.POST)
@@ -393,7 +397,7 @@ def add_authors_from_book(request):
     return render(request, 'library/add_author_from_addbookform.html', {'add_author_form': add_author})
 
 
-
+@login_required
 def add_authors_admin(request):
     if request.method == 'POST':
         add_author_admin = AddAuthorForm(request.POST)
@@ -408,6 +412,8 @@ def add_authors_admin(request):
         add_author_admin = AddAuthorForm()
     return render(request, 'library/add_author_from_admin.html', {'add_author_form_admin': add_author_admin})
 
+
+@login_required
 def add_categories_from_book(request):
     if request.method == 'POST':
         add_category = AddCategoryForm(request.POST)
@@ -421,6 +427,8 @@ def add_categories_from_book(request):
         add_category = AddCategoryForm()
     return render(request, 'library/add_category_from_book.html', {'add_category_form': add_category})
 
+
+@login_required
 def add_categories_from_admin(request):
     if request.method == 'POST':
         add_category_admin = AddCategoryForm(request.POST)
@@ -435,12 +443,12 @@ def add_categories_from_admin(request):
     return render(request, 'library/add_category_from_admin.html', {'add_category_admin': add_category_admin})
 
 
-
+@login_required
 def view_author(request):
     author_list = Authors.objects.all()
     return render(request,'library/admin_view_authors.html',{'author_list':author_list})
     
-
+@login_required
 def edit_author(request,pk):
     if request.method == 'POST':
         author_details = get_object_or_404(Authors, id=pk)
@@ -457,6 +465,7 @@ def edit_author(request,pk):
         edit_author  = EditAuthorForm()
     return render(request,'library/edit_authors.html',{'edit_author_form':edit_author})
 
+
 @login_required
 def delete_authors(request,pk):
     #get the post with the id value in the table
@@ -468,8 +477,11 @@ def delete_authors(request,pk):
 #     book_list = Book.objects.all()
 #     return render(request,'library/admin_view_booklist.html',{'view_booklist':book_list})
 
+
+@login_required
 def admin_book_list(request):
     search_query = request.GET.get('search', '')  # Get the search term from the GET request
+
     
     if search_query:
         # Filter books where the title or author matches the search query
@@ -484,14 +496,23 @@ def admin_book_list(request):
     }
     return render(request, 'library/admin_view_booklist.html', context)
 
+@login_required
+def view_book_details(request,pk):
+    book_list = get_object_or_404(Book, pk=pk)
+    return render(request,'library/admin_book_view.html',{'book_list':book_list})
 
+@login_required
 def view_category(request):
     category_list = Category.objects.all()
     return render(request,'library/admin_view_category.html',{'category_list':category_list})
 
+
+@login_required
 def edit_category(request,pk):
+    category_details = get_object_or_404(Category, id=pk)
+    # plan_details = get_object_or_404(PlanCategory,id = pk)
+
     if request.method == 'POST':
-        category_details = get_object_or_404(Category, id=pk)
         edit_category = EditCategoryForm(request.POST or None,request.FILES or None,instance=category_details)
 
         if edit_category.is_valid():
@@ -502,7 +523,7 @@ def edit_category(request,pk):
             print(edit_category.errors)
     else:
 
-        edit_category  = EditCategoryForm()
+        edit_category  = EditCategoryForm(instance=category_details)
     return render(request,'library/edit_category.html',{'edit_category_form':edit_category})
 
 
@@ -533,7 +554,7 @@ def book_list(request):
     }
     return render(request, 'library/admin_view_booklist.html', context)
 
-
+@login_required
 def author_list(request):
     search_query = request.GET.get('search', '')  # Get the search term from the request
     if search_query:
@@ -548,7 +569,7 @@ def author_list(request):
     return render(request, 'library/admin_view_authors.html', context)
 
 
-
+@login_required
 def category_list(request):
     search_query = request.GET.get('search', '')  # Capture the search term
     if search_query:
@@ -563,13 +584,20 @@ def category_list(request):
     return render(request, 'library/admin_view_category.html', context)
 
 
+@login_required
 def view_subscriptions(request):
     subscriptions_list = SubscriptionPlans.objects.all()
+    print(subscriptions_list)
     return render(request,'library/view_subscriptions.html',{'subscriptions_list':subscriptions_list})
 
+
 def view_subscriptions_plan_user(request):
-    subscriptions_list = SubscriptionPlans.objects.all()
+    # subscriptions_list = SubscriptionPlans.objects.all()
+    # categories = Category.objects.prefetch_related('plans__plan').all()
+    subscriptions_list = SubscriptionPlans.objects.prefetch_related('plans__category').all()
+    print(subscriptions_list)
     return render(request,'library/view_subscriptions_plans_user.html',{'subscriptions_list':subscriptions_list})
+
 
 def view_all_books_home(request):
     view_books = Book.objects.all()
@@ -610,14 +638,14 @@ def view_all_books_home(request):
 #     return redirect('rental_success')
 
 
-
+@login_required
 def rent_book(request, book_id):
     # Assuming you have access to the current logged-in user
     user = request.user
     try:
         book = Book.objects.get(id=book_id)
     except Book.DoesNotExist:
-        messages.error(request, "The book you are trying to rent does not exist.")
+        # messages.error(request, "The book you are trying to rent does not exist.")
         return redirect('home_path')
 
     try:
@@ -646,7 +674,7 @@ def rent_book(request, book_id):
     elif plan.plan_name == "Platinum":
         rental_duration = timedelta(days=60) 
     elif plan.plan_name == "Diamond":
-        rental_duration = timedelta(days=90)  
+        rental_duration = timedelta(days=100)  
     else:
         rental_duration = timedelta(days=28)  # Default to 28 days if plan is not recognized
 
@@ -670,11 +698,11 @@ def rent_book(request, book_id):
         'plan': plan
     })
 
-
+@login_required
 def rental_success(request):
     return render(request, 'library/rental_success.html')
 
-
+@login_required
 def add_category(request):
     if request.method == 'POST':
         form = AddCategoryForm(request.POST)
@@ -684,3 +712,189 @@ def add_category(request):
     else:
         form = AddCategoryForm()
     return render(request, 'library/add_category_from_admin.html', {'form': form})
+
+
+@login_required
+def edit_subscriptions(request, pk):
+    subscription_plan = get_object_or_404(SubscriptionPlans, id=pk)
+
+    if request.method == 'POST':
+        form = EditSubscriptionForm(request.POST, instance=subscription_plan)
+        if form.is_valid():
+            form.save()
+            return redirect('view_subscriptions')  # Replace with the actual redirect URL
+        else:
+            print(form.errors)
+    else:
+        # Pre-select existing categories for the plan
+        existing_categories = PlanCategory.objects.filter(plan=subscription_plan).values_list('category', flat=True)
+        form = EditSubscriptionForm(instance=subscription_plan, initial={'categories': existing_categories})
+
+    return render(request, 'library/edit_subscriptions.html', {'form': form})
+
+
+
+# def user_subscription_plan(request,pk):
+#     plan=get_object_or_404(request.GET,id=pk)
+    
+
+
+# def membership_and_rentals_view(request):
+#     plans = SubscriptionPlans.objects.prefetch_related('plans__category').all()
+#     return render(request, 'library/view_subscriptions_plans_user.html', {'plans': plans})
+
+
+
+# def subscription_details(request, plan_id):
+#     selected_plan = get_object_or_404(SubscriptionPlans, id=plan_id)
+#     return render(request, 'subscription_details.html', {'plan': selected_plan})
+
+
+# def plan_details(request, plan_id):
+#     plan = get_object_or_404(SubscriptionPlans, id=plan_id)
+#     plan_categories = PlanCategory.objects.filter(plan=plan)
+    
+#     # Fetch associated categories for this plan
+#     categories = [plan_category.category.category_name for plan_category in plan_categories]
+    
+#     return render(request, 'plan_details.html', {
+#         'plan': plan,
+#         'categories': categories
+#     })
+
+
+# def subscribe(request, plan_id):
+#     plan = SubscriptionPlans.objects.get(id=plan_id)
+    
+#     # Check if the user is already subscribed to any plan
+#     user_subscription = Subscriptions.objects.filter(user=request.user, end_date__gte=datetime.now()).first()
+
+#     if user_subscription:
+#         # If the user is already subscribed to a plan, check if it's a higher plan
+#         if user_subscription.plan.price < plan.price:
+#             # If the new plan is higher, prompt to upgrade
+#             return render(request, 'upgrade_prompt.html', {
+#                 'current_plan': user_subscription.plan,
+#                 'new_plan': plan
+#             })
+#         else:
+#             # If they are already on a plan that is equal or higher
+#             return render(request, 'already_subscribed.html')
+    
+#     # If the user is not subscribed to any plan, show the subscription details page
+#     return render(request, 'plan_details.html', {
+#         'plan': plan
+#     })
+
+
+
+
+# def plan_details(request, plan_id):
+#     plan = get_object_or_404(SubscriptionPlans, id=plan_id)
+#     return render(request, 'library/view_subscriptions_plans_user.html', {
+#         'plan': plan
+#     })
+
+
+
+# @login_required
+# def confirm_subscription(request, plan_id):
+#     plan = SubscriptionPlans.objects.get(id=plan_id)
+
+#     # Calculate the subscription start and end dates
+#     start_date = timezone.now()
+#     end_date = start_date + timedelta(days=plan.duration)
+
+#     # Create a new subscription record
+#     subscription = Subscriptions.objects.create(
+#         user=request.user,
+#         plan=plan,
+#         start_date=start_date,
+#         end_date=end_date
+#     )
+
+#     # Redirect to a confirmation page
+#     return redirect('subscription_success')
+
+
+
+
+# def subscription_plans_view(request):
+#     # Retrieve all subscription plans
+#     plans = SubscriptionPlans.objects.all()
+#     plans_with_categories = []
+
+#     # Retrieve associated categories for each plan
+#     for plan in plans:
+#         categories = PlanCategory.objects.filter(plan=plan).select_related('category')
+#         category_names = [cat.category.category_name for cat in categories]
+#         plans_with_categories.append({
+#             'plan_name': plan.plan_name,
+#             'price': plan.price,
+#             'duration': plan.duration,
+#             'categories': category_names
+#         })
+
+#     return render(request, 'subscriptions.html', {'plans_with_categories': plans_with_categories})
+
+
+
+
+# @login_required
+# def user_books_view(request):
+#     # Get the user's active subscription
+#     subscription = Subscriptions.objects.filter(user=request.user).first()
+#     if subscription:
+#         # Get categories associated with the user's subscription plan
+#         categories = PlanCategory.objects.filter(plan=subscription.plan).select_related('category')
+#         category_ids = [cat.category.id for cat in categories]
+
+#         # Get books in the allowed categories
+#         accessible_books = Book.objects.filter(category_id__in=category_ids)
+#     else:
+#         accessible_books = []
+
+#     return render(request, 'user_books.html', {'books': accessible_books})
+
+
+
+
+
+
+
+
+# def subscribe_plan(request, plan_id):
+#     # Retrieve the subscription plan by ID
+#     plan = get_object_or_404(SubscriptionPlans, id=plan_id)
+
+#     # Calculate subscription start and end dates
+#     start_date = now()
+#     end_date = start_date + timedelta(days=plan.duration)
+
+#     # Check if the user already has an active subscription
+#     active_subscription = Subscriptions.objects.filter(user=request.user, end_date__gte=now()).first()
+#     if active_subscription:
+#         messages.warning(request, "You already have an active subscription. Please wait until it expires.")
+#         return redirect('subscription_plans')
+
+#     # Create a new subscription for the user
+#     Subscriptions.objects.create(
+#         user=request.user,
+#         plan=plan,
+#         start_date=start_date,
+#         end_date=end_date
+#     )
+
+#     # Add a success message and redirect the user
+#     messages.success(request, f"Successfully subscribed to the {plan.plan_name} plan!")
+#     return redirect('user_books')
+
+
+
+
+def subsscribe(request,pk):
+    user = request.user
+    subscription = Subscriptions.objects.filter(user=user, end_date__gte=timezone.now()).first() 
+    if not subscription:
+        messages.info(request, "You are not subscribed to any active plan. Please subscribe to a plan to rent books.")
+        return redirect('view_subscriptions_plans_user')  
