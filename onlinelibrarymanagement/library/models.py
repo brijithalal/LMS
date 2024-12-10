@@ -48,13 +48,14 @@ class SubscriptionPlans(models.Model):
 class Subscriptions(models.Model):
     plan_status =(
         (1,'Active'),
-        (2,'Expired')
+        (2,'Expired'),
+        (3,'Pending')
     )
-    start_date = models.DateTimeField()
+    start_date = models.DateTimeField(auto_now_add=True)
     end_date = models.DateTimeField()
     plan = models.ForeignKey(SubscriptionPlans,related_name="plan_categories",on_delete=models.CASCADE)
     user = models.ForeignKey(User,related_name="plan_categories",on_delete=models.DO_NOTHING)
-    status = models.PositiveSmallIntegerField(choices=plan_status,default=2)
+    status = models.PositiveSmallIntegerField(choices=plan_status,default=3)
 
 
     def __str__(self):
@@ -78,6 +79,25 @@ class Rent(models.Model):
 
     def __str__(self):
         return f"{self.user.username}"
+    
+
+
+class Payment(models.Model):
+    pay_type = (
+        ('googlepay','Google Pay'),
+        ('creditcard','Credit Card'),
+        ('banktransfer','Bank Transfer')
+
+    )
+    amount = models.DecimalField(max_digits=10,decimal_places=2)
+    payment_date = models.DateTimeField(auto_now_add=True)
+    payment_type = models.CharField(max_length=50,choices=pay_type)
+    user = models.ForeignKey(User,related_name='payment',on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.user.username
+    
+
 
 
 

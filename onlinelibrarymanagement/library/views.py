@@ -890,11 +890,80 @@ def edit_subscriptions(request, pk):
 #     return redirect('user_books')
 
 
+from dateutil.relativedelta import relativedelta
 
-
-def subsscribe(request,pk):
+def subscribe(request,pk):
     user = request.user
-    subscription = Subscriptions.objects.filter(user=user, end_date__gte=timezone.now()).first() 
-    if not subscription:
-        messages.info(request, "You are not subscribed to any active plan. Please subscribe to a plan to rent books.")
-        return redirect('view_subscriptions_plans_user')  
+    plan=get_object_or_404(SubscriptionPlans,id = pk)
+    end_date = timezone.now() + relativedelta(months=plan.duration)
+    
+    subscription = Subscriptions.objects.create(
+        user=user,
+        plan=plan,
+        start_date=timezone.now(),
+        end_date=end_date,
+        status=3 # Initial status set to "pending"
+    )
+    return render(request,'library/payment.html', {"subscription_id": subscription})
+
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from .models import Payment, Subscriptions
+
+def process_payment(request):
+    if request.method == "POST":
+        payment_method = request.POST.get('payment_method')
+        subscription_id = request.POST.get('subscription_id')  # Assuming the subscription ID is passed in the form
+        subscription = get_object_or_404(Subscriptions, id=subscription_id)
+
+        try:
+            # Mock payment processing logic (you'd integrate an actual payment gateway here)
+            if payment_method == "credit_card":
+                card_number = request.POST.get('card_number')
+                expiry_date = request.POST.get('expiry_date')
+                cvv = request.POST.get('cvv')
+                # Perform credit card payment validation and processing here
+                
+            elif payment_method == "google_pay":
+                # Handle Google Pay logic here
+                pass
+            
+            elif payment_method == "bank_transfer":
+                bank_account_number = request.POST.get('bank_account_number')
+                bank_name = request.POST.get('bank_name')
+                transfer_ref = request.POST.get('bank_transfer_ref')
+                # Perform bank transfer validation and processing here
+            
+            # Save the payment details to the Payment model
+            payment = Payment.objects.create(
+                amount=subscription.plan.price,  # Assuming plan price is the payment amount
+                payment_type=payment_method,
+                user=subscription.user
+            )
+            payment.save()
+            
+            # Update subscription status to "Active"
+            subscription.status = 1  # Status "1" corresponds to "Active"
+            subscription.save()
+
+            messages.success(request, f"Payment successfully processed! Your subscription to {subscription.plan.plan_name} is now active.")
+            return redirect('home_path')  # Redirect to a success page or home page
+        
+        except Exception as e:
+            # Handle payment failure
+            messages.error(request, f"Payment failed: {str(e)}")
+            return redirect('home_path')  # Redirect to an error page
+
+    
+
+
+    
+
+
+
+        
+      
+    

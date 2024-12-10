@@ -30,6 +30,8 @@ urlpatterns =[
     path('rental_success/', views.rental_success, name='rental_success'),
     path('view_subscriptions_plan_user/',views.view_subscriptions_plan_user,name = "view_subscriptions_plans_user"),
     path('logout/',views.custom_logout,name="logout"),
-    path('admin_dashboard/edit_subscriptions/<int:pk>/',views.edit_subscriptions,name='edit_subscriptions')
+    path('admin_dashboard/edit_subscriptions/<int:pk>/',views.edit_subscriptions,name='edit_subscriptions'),
+    path('subscribe/<int:pk>',views.subscribe,name="subscribe"),
+    path('payment/',views.process_payment,name="process_payment")
 
 ]
