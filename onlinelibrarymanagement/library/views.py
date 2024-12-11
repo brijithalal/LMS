@@ -1,5 +1,5 @@
 from datetime import timedelta
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render,redirect
 from django.contrib import messages
@@ -17,10 +17,24 @@ def home(request):
     if request.user.is_authenticated and request.session['group_name']=='admin':
         return redirect("admin_dashboard")
         
+    elif request.user.is_authenticated and request.session['group_name']=='user':
+        view_books = Book.objects.all()
+        notifications = Notification.objects.filter(user=request.user)
+        unread_count = notifications.filter(is_read=False).count()  # Assuming you have an `is_read` field
+
+        context = {
+            'notifications': notifications,
+            'unread_count': unread_count,
+            'view_books':view_books
+        }
+        print(view_books)
     else:
         view_books = Book.objects.all()
-        print(view_books)
-        return render(request,'library/topbar.html',{"view_books":view_books})
+        context={
+            'view_books':view_books
+        }
+    return render(request,'library/topbar.html',context)
+    
 
         # return render(request,'library/base.html')
 
@@ -591,12 +605,12 @@ def view_subscriptions(request):
     return render(request,'library/view_subscriptions.html',{'subscriptions_list':subscriptions_list})
 
 
-def view_subscriptions_plan_user(request):
-    # subscriptions_list = SubscriptionPlans.objects.all()
-    # categories = Category.objects.prefetch_related('plans__plan').all()
-    subscriptions_list = SubscriptionPlans.objects.prefetch_related('plans__category').all()
-    print(subscriptions_list)
-    return render(request,'library/view_subscriptions_plans_user.html',{'subscriptions_list':subscriptions_list})
+# def view_subscriptions_plan_user(request):
+#     # subscriptions_list = SubscriptionPlans.objects.all()
+#     # categories = Category.objects.prefetch_related('plans__plan').all()
+#     subscriptions_list = SubscriptionPlans.objects.prefetch_related('plans__category').all()
+#     print(subscriptions_list)
+#     return render(request,'library/view_subscriptions_plans_user.html',{'subscriptions_list':subscriptions_list})
 
 
 def view_all_books_home(request):
@@ -638,6 +652,144 @@ def view_all_books_home(request):
 #     return redirect('rental_success')
 
 
+# @login_required
+# def rent_book(request, book_id):
+#     # Assuming you have access to the current logged-in user
+#     user = request.user
+#     try:
+#         book = Book.objects.get(id=book_id)
+#     except Book.DoesNotExist:
+#         # messages.error(request, "The book you are trying to rent does not exist.")
+#         return redirect('home_path')
+
+#     try:
+#         # Get the user's active subscription plan
+#         #gte is greater than or equal to
+#         subscription = Subscriptions.objects.filter(user=user, end_date__gte=timezone.now()).first() 
+#         if not subscription:
+#             messages.info(request, "You are not subscribed to any active plan. Please subscribe to a plan to rent books.")
+#             return redirect('view_subscriptions_plans_user')  
+
+#         plan = subscription.plan  # This gives you the SubscriptionPlans object
+#     except Subscriptions.DoesNotExist:
+#         # If the user is not subscribed to any plan
+#         messages.info(request, "You are not subscribed to any plan. Please subscribe to a plan to rent books.")
+#         return redirect('view_subscriptions_plans_user')  
+
+#     # Check if the user's subscription plan allows access to the book's category
+#     allowed_categories = PlanCategory.objects.filter(plan=plan).values_list('category', flat=True)
+#     if book.category.id not in allowed_categories:
+#         messages.info(request, "Your subscription plan does not give you access to this book's category. Please subscribe to a higher plan.")
+#         return redirect('view_subscriptions_plans_user')  
+
+#     # Set rental duration based on the subscription plan
+#     if plan.plan_name == "Gold":
+#         rental_duration = timedelta(days=28)  
+#     elif plan.plan_name == "Platinum":
+#         rental_duration = timedelta(days=60) 
+#     elif plan.plan_name == "Diamond":
+#         rental_duration = timedelta(days=100)  
+#     else:
+#         rental_duration = timedelta(days=28)  # Default to 28 days if plan is not recognized
+
+#     # Show confirmation to the user about renting the book
+#     if request.method == 'POST':
+      
+#         rental_end_date = timezone.now() + rental_duration
+#         rental = Rent.objects.create(
+#             user=user,
+#             book=book,
+#             rent_date=timezone.now(),
+#             expiry_date=rental_end_date
+#         )
+#         messages.success(request, f"You have rented '{book.book_title}' for {rental_duration.days} days. Rental ID: {rental.id}")
+#         return redirect('rental_success')  # Redirect to a success page or book details
+
+#     # If it's not a POST request, show the confirmation page
+#     return render(request, 'library/rent_confirmation.html', {
+#         'book': book,
+#         'rental_duration': rental_duration,
+#         'plan': plan
+#     })
+
+# @login_required
+# def rent_book(request, book_id):
+#     # Assuming you have access to the current logged-in user
+#     user = request.user
+#     try:
+#         book = Book.objects.get(id=book_id)
+#     except Book.DoesNotExist:
+#         return redirect('home_path')
+
+#     try:
+#         # Get the user's active subscription plan
+#         subscription = Subscriptions.objects.filter(user=user, end_date__gte=timezone.now()).first()
+#         if not subscription:
+#             messages.info(request, "You are not subscribed to any active plan. Please subscribe to a plan to rent books.")
+#             return redirect('view_subscriptions_plans_user')
+
+#         plan = subscription.plan  # This gives you the SubscriptionPlans object
+#     except Subscriptions.DoesNotExist:
+#         messages.info(request, "You are not subscribed to any plan. Please subscribe to a plan to rent books.")
+#         return redirect('view_subscriptions_plans_user')
+
+#     # Check if the user's subscription plan allows access to the book's category
+#     allowed_categories = PlanCategory.objects.filter(plan=plan).values_list('category', flat=True)
+#     if book.category.id not in allowed_categories:
+#         messages.info(request, "Your subscription plan does not give you access to this book's category. Please subscribe to a higher plan.")
+#         return redirect('view_subscriptions_plans_user')
+
+#     # Set rental duration based on the subscription plan
+#     if plan.plan_name == "Gold":
+#         rental_duration = timedelta(days=28)
+#     elif plan.plan_name == "Platinum":
+#         rental_duration = timedelta(days=60)
+#     elif plan.plan_name == "Diamond":
+#         rental_duration = timedelta(days=100)
+#     else:
+#         rental_duration = timedelta(days=28)  # Default to 28 days if plan is not recognized
+
+#     # Handle payment form submission
+#     if request.method == 'POST':
+#         payment_type = request.POST.get('payment_type')  # Retrieve selected payment type
+
+#         if not payment_type:
+#             # Return an error if no payment type is selected
+#             messages.error(request, "Please select a payment method.")
+#             return render(request, 'library/rent_confirmation.html', {'book': book, 'rental_duration': rental_duration, 'plan': plan})
+
+#         # Decrease the stock of the book (if needed)
+#         book.stock_quantity -= 1
+#         book.save()
+
+#         # Create a rental record
+#         rental_end_date = timezone.now() + rental_duration
+#         rental = Rent.objects.create(
+#             user=user,
+#             book=book,
+#             rent_date=timezone.now(),
+#             expiry_date=rental_end_date
+#         )
+
+#         # Create a payment record for the rental
+#         payment = Payment.objects.create(
+#                 amount=book.price,
+#                 payment_type=payment_type,  # Save the selected payment type
+#                 user=request.user,
+#                 payment_action=3  # Indicating a purchase action
+#             )
+
+#         # Success message and redirect
+#         messages.success(request, f"You have rented '{book.book_title}' for {rental_duration.days} days. Rental ID: {rental.id}. Payment ID: {payment.id}")
+#         return redirect('rental_success')  # Redirect to a success page or book details
+
+#     # If it's not a POST request, show the confirmation page
+#     return render(request, 'library/rent_confirmation.html', {
+#         'book': book,
+#         'rental_duration': rental_duration,
+#         'plan': plan
+#     })
+
 @login_required
 def rent_book(request, book_id):
     # Assuming you have access to the current logged-in user
@@ -645,42 +797,78 @@ def rent_book(request, book_id):
     try:
         book = Book.objects.get(id=book_id)
     except Book.DoesNotExist:
-        # messages.error(request, "The book you are trying to rent does not exist.")
         return redirect('home_path')
 
     try:
         # Get the user's active subscription plan
-        #gte is greater than or equal to
-        subscription = Subscriptions.objects.filter(user=user, end_date__gte=timezone.now()).first() 
+        subscription = Subscriptions.objects.filter(user=user, end_date__gte=timezone.now()).first()
         if not subscription:
             messages.info(request, "You are not subscribed to any active plan. Please subscribe to a plan to rent books.")
-            return redirect('view_subscriptions_plans_user')  
+            return redirect('view_subscriptions_plans_user')
 
         plan = subscription.plan  # This gives you the SubscriptionPlans object
     except Subscriptions.DoesNotExist:
-        # If the user is not subscribed to any plan
         messages.info(request, "You are not subscribed to any plan. Please subscribe to a plan to rent books.")
-        return redirect('view_subscriptions_plans_user')  
+        return redirect('view_subscriptions_plans_user')
 
     # Check if the user's subscription plan allows access to the book's category
     allowed_categories = PlanCategory.objects.filter(plan=plan).values_list('category', flat=True)
     if book.category.id not in allowed_categories:
         messages.info(request, "Your subscription plan does not give you access to this book's category. Please subscribe to a higher plan.")
-        return redirect('view_subscriptions_plans_user')  
+        return redirect('view_subscriptions_plans_user')
+    
+        # Check if the user has already rented this book
+    existing_rental = Rent.objects.filter(user=user, book=book, expiry_date__gte=timezone.now()).first()
+    if existing_rental:
+        messages.info(request, "You have already rented this book.")
+        return redirect('home_path')  # Or redirect to another page where the user can view their rented books
+
 
     # Set rental duration based on the subscription plan
     if plan.plan_name == "Gold":
-        rental_duration = timedelta(days=28)  
+        rental_duration = timedelta(days=28)
     elif plan.plan_name == "Platinum":
-        rental_duration = timedelta(days=60) 
+        rental_duration = timedelta(days=60)
     elif plan.plan_name == "Diamond":
-        rental_duration = timedelta(days=100)  
+        rental_duration = timedelta(days=100)
     else:
         rental_duration = timedelta(days=28)  # Default to 28 days if plan is not recognized
 
-    # Show confirmation to the user about renting the book
+    # Handle payment form submission
     if request.method == 'POST':
-      
+        payment_type = request.POST.get('payment_type')  # Retrieve selected payment type
+        if not payment_type:
+            # messages.error(request, "Please select a payment method.")
+            return render(request, 'library/rent_confirmation.html', {'book': book, 'rental_duration': rental_duration, 'plan': plan})
+
+        # Validate payment-specific fields based on selected payment type
+        if payment_type == 'googlepay':
+            upi_id = request.POST.get('upi_id')
+            if not upi_id:
+                # messages.error(request, "Please enter your UPI ID for Google Pay.")
+                return render(request, 'library/rent_confirmation.html', {'book': book, 'rental_duration': rental_duration, 'plan': plan})
+
+        elif payment_type == 'creditcard':
+            card_number = request.POST.get('card_number')
+            card_expiry = request.POST.get('card_expiry')
+            card_cvv = request.POST.get('card_cvv')
+            if not card_number or not card_expiry or not card_cvv:
+                # messages.error(request, "Please fill in all the credit card details.")
+                return render(request, 'library/rent_confirmation.html', {'book': book, 'rental_duration': rental_duration, 'plan': plan})
+
+        elif payment_type == 'banktransfer':
+            account_number = request.POST.get('account_number')
+            ifsc_code = request.POST.get('ifsc_code')
+            if not account_number or not ifsc_code:
+                # messages.error(request, "Please provide both the Bank Account Number and IFSC Code.")
+                return render(request, 'library/rent_confirmation.html', {'book': book, 'rental_duration': rental_duration, 'plan': plan})
+
+        # If payment details are valid, proceed with creating the rental and payment
+        # Decrease the stock of the book (if needed)
+        book.stock_quantity -= 1
+        book.save()
+
+        # Create a rental record
         rental_end_date = timezone.now() + rental_duration
         rental = Rent.objects.create(
             user=user,
@@ -688,7 +876,17 @@ def rent_book(request, book_id):
             rent_date=timezone.now(),
             expiry_date=rental_end_date
         )
-        messages.success(request, f"You have rented '{book.book_title}' for {rental_duration.days} days. Rental ID: {rental.id}")
+
+        # Create a payment record for the rental
+        payment = Payment.objects.create(
+            amount=book.rent_price,  # Assuming you have rental_price field in the Book model
+            payment_type=payment_type,  # Save the selected payment type
+            user=request.user,
+            payment_action=3  # Indicating a rent action
+        )
+
+        # Success message and redirect
+        messages.success(request, f"You have rented '{book.book_title}' for {rental_duration.days} days. Rental ID: {rental.id}. Payment ID: {payment.id}")
         return redirect('rental_success')  # Redirect to a success page or book details
 
     # If it's not a POST request, show the confirmation page
@@ -697,6 +895,8 @@ def rent_book(request, book_id):
         'rental_duration': rental_duration,
         'plan': plan
     })
+
+
 
 @login_required
 def rental_success(request):
@@ -891,21 +1091,52 @@ def edit_subscriptions(request, pk):
 
 
 from dateutil.relativedelta import relativedelta
-
-def subscribe(request,pk):
-    user = request.user
-    plan=get_object_or_404(SubscriptionPlans,id = pk)
-    end_date = timezone.now() + relativedelta(months=plan.duration)
+# @login_required
+# def subscribe(request,pk):
+#     user = request.user
+#     plan=get_object_or_404(SubscriptionPlans,id = pk)
+#     end_date = timezone.now() + relativedelta(months=plan.duration)
     
+#     subscription = Subscriptions.objects.create(
+#         user=user,
+#         plan=plan,
+#         start_date=timezone.now(),
+#         end_date=end_date,
+#         status=3 # Initial status set to "pending"
+#     )
+#     return render(request,'library/payment.html', {"subscription_id": subscription})
+
+@login_required
+def subscribe(request, pk):
+    user = request.user
+    plan = get_object_or_404(SubscriptionPlans, id=pk)
+
+    # Check if the user already holds this plan
+    active_subscription = Subscriptions.objects.filter(
+        user=user,
+        plan=plan,
+        status=1  # Assuming status=1 means "active"
+    ).first()
+
+    if active_subscription:
+        # Alert the user and redirect to a subscription management page
+        messages.warning(
+            request, 
+            f"You are already subscribed to the {plan.plan_name} plan. Consider upgrading to a higher plan for more benefits!"
+        )
+        return redirect('view_subscriptions_plans_user')  # Replace with your desired redirect URL
+
+    # If no active subscription, create a new subscription
+    end_date = timezone.now() + relativedelta(months=plan.duration)
     subscription = Subscriptions.objects.create(
         user=user,
         plan=plan,
         start_date=timezone.now(),
         end_date=end_date,
-        status=3 # Initial status set to "pending"
+        status=3  # Initial status set to "pending"
     )
-    return render(request,'library/payment.html', {"subscription_id": subscription})
 
+    return render(request, 'library/payment.html', {"subscription_id": subscription})
 
 from django.shortcuts import render, redirect
 from django.contrib import messages
@@ -962,8 +1193,618 @@ def process_payment(request):
 
     
 
+# def view_subscriptions_plan_user(request):
+#     user = request.user
 
+#     # Check if the user has an active subscription
+#     active_subscription = Subscriptions.objects.filter(
+#         user=user,
+#         status=1,  # Active status
+#         end_date__gte=now()  # Ensure the subscription is still valid
+#     ).first()
 
-        
+#     if active_subscription:
+#         # Redirect to upgrade plan with a message
+#         messages.info(
+#             request,
+#             f"You currently have an active subscription plan: {active_subscription.plan.plan_name}. "
+#             "Would you like to upgrade to a higher plan?"
+#         )
+#         return redirect('upgrade_plan')  # Redirect to the upgrade plan view
+
+#     # If no active subscription, show all subscription plans
+#     subscriptions_list = SubscriptionPlans.objects.prefetch_related('plans__category').all()
+#     return render(request, 'library/view_subscriptions_plans_user.html', {
+#         'subscriptions_list': subscriptions_list
+#     })
       
     
+
+
+
+
+from django.utils.timezone import now
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import Subscriptions, SubscriptionPlans
+
+# def view_subscriptions_plan_user(request):
+#     user = request.user
+
+#     # Check if the user has an active subscription
+#     active_subscription = Subscriptions.objects.filter(
+#         user=user,
+#         status=1,  # Active status
+#         end_date__gte=now()  # Ensure the subscription is still valid
+#     ).first()
+
+#     if active_subscription:
+#         # Redirect to upgrade plan with a message
+#         messages.info(
+#             request,
+#             f"You currently have an active subscription plan: {active_subscription.plan.plan_name}. "
+#             "Would you like to upgrade to a higher plan?"
+#         )
+#         return redirect('upgrade_plan')  # Redirect to the upgrade plan view
+
+#     # If no active subscription, show all subscription plans
+#     subscriptions_list = SubscriptionPlans.objects.prefetch_related('plans__category').all()
+#     return render(request, 'library/view_subscriptions_plans_user.html', {
+#         'subscriptions_list': subscriptions_list
+#     })
+
+# def view_subscriptions_plan_user(request):
+#     user = request.user
+
+#     # Check if the user has an active subscription
+#     active_subscription = Subscriptions.objects.filter(
+#         user=user,
+#         status=1,  # Active status
+#         end_date__gte=now()  # Ensure the subscription is still valid
+#     ).first()
+
+#     highest_plan = SubscriptionPlans.objects.order_by('-price').first()
+
+#     if active_subscription:
+#         # Check if the user has the highest plan
+#         if active_subscription.plan == highest_plan:
+#             alert_message = f"You already have the highest plan: {active_subscription.plan.plan_name}."
+#         else:
+#             alert_message = f"You currently have an active plan: {active_subscription.plan.plan_name}. Upgrade to a higher plan to access more features!"
+#     else:
+#         alert_message = "No active subscription. Subscribe to a plan to enjoy the benefits."
+
+#     # Fetch all subscription plans for display
+#     subscriptions_list = SubscriptionPlans.objects.all()
+
+#     return render(request, 'library/view_subscriptions_plans_user.html', {
+#         'subscriptions_list': subscriptions_list,
+#         'active_subscription': active_subscription,
+#         'alert_message': alert_message,
+#         'highest_plan': highest_plan,
+#     })
+
+
+
+from django.shortcuts import render
+from .models import SubscriptionPlans
+
+# def upgrade_plan(request):
+#     # Fetch higher plans for display
+#     upgradeable_plans = SubscriptionPlans.objects.all()
+#     return render(request, 'library/upgrade_plan.html', {
+#         'upgradeable_plans': upgradeable_plans
+#     })
+
+
+
+#---------testing code---------------------
+@login_required
+def view_subscriptions_plan_user(request):
+    user = request.user
+    active_subscription = Subscriptions.objects.filter(user=user, end_date__gte=now(), status=1).first()
+    # subscription = SubscriptionPlans.objects.all()
+
+    if active_subscription:
+        # Fetch higher plans
+        upgradeable_plans = SubscriptionPlans.objects.filter(price__gt=active_subscription.plan.price)
+        
+    else:
+        upgradeable_plans = SubscriptionPlans.objects.all()
+        print(upgradeable_plans)
+
+
+    context = {
+         'active_subscription': active_subscription,
+        'upgradeable_plans': upgradeable_plans,
+        # 'subscription_plan' : subscription
+    }    
+    return render(request, 'library/view_subscriptions_plans_user.html', context)
+    
+    
+    
+    #         'active_subscription': active_subscription,
+    #         'higher_plans': higher_plans,
+    #     })
+    # else:
+    #     # User has no active subscriptions, show all available plans
+    #     subscriptions_list = SubscriptionPlans.objects.all()
+    #     return render(request, 'library/view_subscriptions_plans_user.html', {
+    #         'subscriptions_list': subscriptions_list,
+    #     })
+    
+
+
+
+# @login_required
+# def upgrade_plan(request, pk):
+#     user = request.user
+#     plan_to_upgrade = get_object_or_404(SubscriptionPlans, id=pk)
+#     active_subscription = Subscriptions.objects.filter(user=user, end_date__gte=now(), status=1).first()
+
+#     if not active_subscription:
+#         messages.info(request, "You do not have an active subscription to upgrade.")
+#         return redirect('view_subscriptions_plans_user')
+
+#     if plan_to_upgrade.price <= active_subscription.plan.price:
+#         messages.error(request, "You cannot downgrade or select a similar plan.")
+#         return redirect('view_subscriptions_plans_user')
+
+#     if request.method == "POST":
+#         # Mark the current plan as expired
+#         active_subscription.status = 2  # Expired
+#         active_subscription.save()
+
+#         # Add the new subscription
+#         new_subscription = Subscriptions.objects.create(
+#             user=user,
+#             plan=plan_to_upgrade,
+#             start_date=now(),
+#             end_date=now() + relativedelta(months=plan_to_upgrade.duration),
+#             status=1  # Active
+#         )
+
+#         messages.success(request, f"Successfully upgraded to the {plan_to_upgrade.plan_name} plan!")
+#         return redirect('view_subscriptions_plans_user')
+
+#     return render(request, 'library/upgrade_prompt.html', {
+#         'plan_to_upgrade': plan_to_upgrade,
+#         'active_subscription': active_subscription
+#     })
+
+
+
+# @login_required
+# def upgrade_plan(request, pk):
+#     user = request.user
+#     plan_to_upgrade = get_object_or_404(SubscriptionPlans, id=pk)
+#     active_subscription = Subscriptions.objects.filter(user=user, end_date__gte=now(), status=1).first()
+
+#     if not active_subscription:
+#         messages.info(request, "You do not have an active subscription to upgrade.")
+#         return redirect('view_subscriptions_plans_user')
+
+#     if plan_to_upgrade.price <= active_subscription.plan.price:
+#         messages.error(request, "You cannot downgrade or select a similar plan.")
+#         return redirect('view_subscriptions_plans_user')
+
+#     if request.method == "POST":
+#         # Mark the current plan as expired
+#         active_subscription.status = 2  # Expired
+#         active_subscription.save()
+
+#         # Add the new subscription
+#         new_subscription = Subscriptions.objects.create(
+#             user=user,
+#             plan=plan_to_upgrade,
+#             start_date=now(),
+#             end_date=now() + relativedelta(months=plan_to_upgrade.duration),
+#             status=1  # Active
+#         )
+
+#         messages.success(request, f"Successfully upgraded to the {plan_to_upgrade.plan_name} plan!")
+#         return redirect('view_subscriptions_plans_user')
+
+#     return render(request, 'library/upgrade_prompt.html', {
+#         'plan_to_upgrade': plan_to_upgrade,
+#         'active_subscription': active_subscription
+#     })
+
+
+# @login_required
+# def upgrade_plan(request, pk):
+#     user = request.user
+#     plan_to_upgrade = get_object_or_404(SubscriptionPlans, id=pk)
+#     active_subscription = Subscriptions.objects.filter(user=user, end_date__gte=now(), status=1).first()
+
+#     if not active_subscription:
+#         messages.info(request, "You do not have an active subscription to upgrade.")
+#         return redirect('view_subscriptions_plans_user')
+
+#     # Check if the selected plan is the same or lower than the current plan
+#     if plan_to_upgrade.price <= active_subscription.plan.price:
+#         messages.info(request, "You do not have any higher plans.")
+#         return redirect('view_subscriptions_plans_user')
+
+#     if request.method == "POST":
+#         # Mark the current plan as expired
+#         active_subscription.status = 2  # Expired
+#         active_subscription.save()
+
+#         # Add the new subscription
+#         new_subscription = Subscriptions.objects.create(
+#             user=user,
+#             plan=plan_to_upgrade,
+#             start_date=now(),
+#             end_date=now() + relativedelta(months=plan_to_upgrade.duration),
+#             status=1  # Active
+#         )
+
+#         messages.success(request, f"Successfully upgraded to the {plan_to_upgrade.plan_name} plan!")
+#         return redirect('view_subscriptions_plans_user')
+
+#     return render(request, 'library/upgrade_prompt.html', {
+#         'plan_to_upgrade': plan_to_upgrade,
+#         'active_subscription': active_subscription
+#     })
+
+
+# @login_required
+# def upgrade_plan(request, pk=None):
+#     user = request.user
+
+#     # Get the user's active subscription
+#     active_subscription = Subscriptions.objects.filter(user=user, end_date__gte=now(), status=1).first()
+
+#     if not active_subscription:
+#         # If no active subscription, show the list of plans
+#         available_plans = SubscriptionPlans.objects.all()
+#         messages.info(request, "You do not have an active subscription. Please choose a plan.")
+#         return render(request, 'library/view_subscription.html', {'available_plans': available_plans})
+
+#     # If a plan ID is provided, fetch the plan to upgrade
+#     plan_to_upgrade = None
+#     if pk:
+#         plan_to_upgrade = get_object_or_404(SubscriptionPlans, id=pk)
+
+#         # Prevent downgrades or selecting a similar plan
+#         if plan_to_upgrade.price <= active_subscription.plan.price:
+#             messages.error(request, "You cannot downgrade or select a similar plan.")
+#             return redirect('view_subscriptions_plans_user')
+
+#         if request.method == "POST":
+#             # Expire the current plan
+#             active_subscription.status = 2  # Expired
+#             active_subscription.save()
+
+#             # Create a new subscription
+#             Subscriptions.objects.create(
+#                 user=user,
+#                 plan=plan_to_upgrade,
+#                 start_date=now(),
+#                 end_date=now() + relativedelta(months=plan_to_upgrade.duration),
+#                 status=1  # Active
+#             )
+
+#             messages.success(request, f"Successfully upgraded to the {plan_to_upgrade.plan_name} plan!")
+#             return redirect('view_subscriptions_plans_user')
+
+#     return render(request, 'library/upgrade_prompt.html', {
+#         'plan_to_upgrade': plan_to_upgrade,
+#         'active_subscription': active_subscription
+#     })
+
+
+# @login_required
+# def upgrade_plan(request, pk):
+#     user = request.user
+#     plan_to_upgrade = get_object_or_404(SubscriptionPlans, id=pk)
+#     active_subscription = Subscriptions.objects.filter(user=user, end_date__gte=now(), status=1).first()
+
+#     if not active_subscription:
+#         messages.info(request, "You do not have an active subscription to upgrade.")
+#         return redirect('view_subscriptions_plans_user')
+
+#     # Check if the selected plan is the same or lower than the current plan
+#     if plan_to_upgrade.price <= active_subscription.plan.price:
+#         messages.info(request, "You do not have any higher plans.")
+#         return redirect('view_subscriptions_plans_user')
+
+#     if request.method == "POST":
+#         # Mark the current plan as expired
+#         active_subscription.status = 2  # Expired
+#         active_subscription.save()
+
+#         # Add the new subscription
+#         new_subscription = Subscriptions.objects.create(
+#             user=user,
+#             plan=plan_to_upgrade,
+#             start_date=now(),
+#             end_date=now() + relativedelta(months=plan_to_upgrade.duration),
+#             status=1  # Active
+#         )
+
+#         messages.success(request, f"Successfully upgraded to the {plan_to_upgrade.plan_name} plan!")
+#         return redirect('view_subscriptions_plans_user')
+
+#     return render(request, 'library/payment.html', {
+#         'plan_to_upgrade': plan_to_upgrade,
+#         'active_subscription': active_subscription,
+        
+#     })
+
+
+# original
+
+# @login_required
+# def confirm_subscription(request, pk):
+#     plan_to_confirm = get_object_or_404(SubscriptionPlans, id=pk)
+#     # Add logic for confirming subscription, e.g., processing the payment
+
+#     # After confirmation, create a new subscription for the user
+#     user = request.user
+#     new_subscription = Subscriptions.objects.create(
+#         user=user,
+#         plan=plan_to_confirm,
+#         start_date=now(),
+#         end_date=now() + relativedelta(months=plan_to_confirm.duration),
+#         status=1  # Active
+#     )
+#     new_subscription.save()
+#     messages.success(request, f"Successfully upgraded to the {plan_to_confirm.plan_name} plan!")
+#     return redirect('view_subscriptions_plans_user')
+
+
+@login_required
+def confirm_subscription(request, pk):
+    plan_to_confirm = get_object_or_404(SubscriptionPlans, id=pk)
+    user = request.user
+
+    # Mark the current active subscription as expired
+    active_subscription = Subscriptions.objects.filter(user=user, end_date__gte=now(), status=1).first()
+    if active_subscription:
+        active_subscription.status = 2  # Expired
+        active_subscription.save()
+
+    # Create the new subscription
+    new_subscription = Subscriptions.objects.create(
+        user=user,
+        plan=plan_to_confirm,
+        start_date=now(),
+        end_date=now() + relativedelta(months=plan_to_confirm.duration),
+        status=1  # Active
+    )
+    new_subscription.save()
+
+    messages.success(request, f"Successfully subscribed to the {plan_to_confirm.plan_name} plan!")
+    return redirect('view_subscriptions_plans_user')
+
+
+
+# @login_required
+# def upgrade_plan(request, pk):
+#     user = request.user
+#     plan_to_upgrade = get_object_or_404(SubscriptionPlans, id=pk)
+#     active_subscription = Subscriptions.objects.filter(user=user, end_date__gte=now(), status=1).first()
+
+#     if not active_subscription:
+#         messages.info(request, "You do not have an active subscription to upgrade.")
+#         return redirect('view_subscriptions_plans_user')
+
+#     # Check if the selected plan is the same or lower than the current plan
+#     if plan_to_upgrade.price <= active_subscription.plan.price:
+#         messages.info(request, "You do not have any higher plans.")
+#         return redirect('view_subscriptions_plans_user')
+
+#     # Redirect to payment page for processing
+#     if request.method == "POST":
+#         # Create a temporary "pending" subscription for the upgraded plan
+#         end_date = now() + relativedelta(months=plan_to_upgrade.duration)
+
+#         new_subscription = Subscriptions.objects.create(
+#             user=user,
+#             plan=plan_to_upgrade,
+#             start_date=now(),
+#             end_date=end_date,
+#             status=3  # Pending until payment is successful
+#         )
+
+#         return render(request, 'library/payment.html', {"subscription_id": new_subscription.id})
+
+#     return render(request, 'library/upgrade_prompt.html', {
+#         'plan_to_upgrade': plan_to_upgrade,
+#         'active_subscription': active_subscription
+#     })
+
+
+# @login_required
+# def upgrade_plan(request, pk):
+#     user = request.user
+#     plan_to_upgrade = get_object_or_404(SubscriptionPlans, id=pk)
+#     active_subscription = Subscriptions.objects.filter(user=user, end_date__gte=now(), status=1).first()
+
+#     if not active_subscription:
+#         messages.info(request, "You do not have an active subscription to upgrade.")
+#         return redirect('view_subscriptions_plans_user')
+
+#     # Check if the selected plan is the same or lower than the current plan
+#     if plan_to_upgrade.price <= active_subscription.plan.price:
+#         messages.info(request, "You do not have any higher plans.")
+#         return redirect('view_subscriptions_plans_user')
+
+#     # Redirect to payment page for processing
+#     if request.method == "POST":
+#         # Create a temporary "pending" subscription for the upgraded plan
+#         end_date = now() + relativedelta(months=plan_to_upgrade.duration)
+
+#         new_subscription = Subscriptions.objects.create(
+#             user=user,
+#             plan=plan_to_upgrade,
+#             start_date=now(),
+#             end_date=end_date,
+#             status=3  # Pending until payment is successful
+#         )
+
+#         return render(request, 'library/payment.html', {"subscription_id": new_subscription.id})
+
+#     return render(request, 'library/upgrade_prompt.html', {
+#         'plan_to_upgrade': plan_to_upgrade,
+#         'active_subscription': active_subscription
+#     })
+
+
+
+# @login_required
+# def upgrade_plan(request, pk):
+#     user = request.user
+#     plan_to_upgrade = get_object_or_404(SubscriptionPlans, id=pk)
+#     active_subscription = Subscriptions.objects.filter(user=user, end_date__gte=now(), status=1).first()
+
+#     if not active_subscription:
+#         messages.info(request, "You do not have an active subscription to upgrade.")
+#         return redirect('view_subscriptions_plans_user')
+
+#     # Check if the selected plan is the same or lower than the current plan
+#     if plan_to_upgrade.price <= active_subscription.plan.price:
+#         messages.info(request, "You cannot upgrade to a plan with equal or lower value.")
+#         return redirect('view_subscriptions_plans_user')
+
+#     # Process upgrade
+#     if request.method == "POST":
+#         # Mark the current subscription as expired
+#         active_subscription.status = 2  # Assuming 2 represents 'Expired'
+#         active_subscription.save()
+
+#         # Create a new subscription for the upgraded plan
+#         end_date = now() + relativedelta(months=plan_to_upgrade.duration)
+
+#         new_subscription = Subscriptions.objects.create(
+#             user=user,
+#             plan=plan_to_upgrade,
+#             start_date=now(),
+#             end_date=end_date,
+#             status=1  # Active
+#         )
+#         new_subscription.save()
+
+#         messages.success(request, f"Successfully upgraded to the {plan_to_upgrade.plan_name} plan!")
+#         return redirect('view_subscriptions_plans_user')
+
+#     return render(request, 'library/upgrade_prompt.html', {
+#         'plan_to_upgrade': plan_to_upgrade,
+#         'active_subscription': active_subscription
+#     })
+
+
+@login_required
+def upgrade_plan(request, pk):
+    user = request.user
+    plan_to_upgrade = get_object_or_404(SubscriptionPlans, id=pk)
+    active_subscription = Subscriptions.objects.filter(user=user, end_date__gte=now(), status=1).first()
+
+    if not active_subscription:
+        messages.info(request, "You do not have an active subscription to upgrade.")
+        return redirect('view_subscriptions_plans_user')
+
+    # Check if the selected plan is higher than the current plan
+    if plan_to_upgrade.price <= active_subscription.plan.price:
+        messages.info(request, "You cannot upgrade to a plan with equal or lower value.")
+        return redirect('view_subscriptions_plans_user')
+
+    if request.method == "POST":
+        # Mark the current subscription as expired
+        active_subscription.status = 2  # Expired
+        active_subscription.save()
+
+        # Create a new subscription for the upgraded plan
+        new_subscription = Subscriptions.objects.create(
+            user=user,
+            plan=plan_to_upgrade,
+            start_date=now(),
+            end_date=now() + relativedelta(months=plan_to_upgrade.duration),
+            status=1  # Active
+        )
+        new_subscription.save()
+
+        messages.success(request, f"Successfully upgraded to the {plan_to_upgrade.plan_name} plan!")
+        return redirect('view_subscriptions_plans_user')
+
+    return render(request, 'library/upgrade_prompt.html', {
+        'plan_to_upgrade': plan_to_upgrade,
+        'active_subscription': active_subscription
+    })
+
+
+# def subscription_home(request):
+#     subscription = SubscriptionPlans.objects.all()
+#     return render(request,'library/subscription_home.html',{'subscription':subscription})
+
+
+
+@login_required
+def subscription_home(request):
+    # Check if the user has an active subscription
+    active_subscription = Subscriptions.objects.filter(user=request.user, status= 1).first()
+    
+    if active_subscription:
+        # If the user has an active subscription, redirect to their subscription management page
+        return redirect('view_subscriptions_plans_user')  # Replace with the actual URL name for subscription management
+    else:
+        # If no active subscription, show available plans
+        available_plans = SubscriptionPlans.objects.all()  # or any filter you need
+        return render(request, 'library/subscription_home.html', {'subscription': available_plans})
+    
+
+@login_required
+def purchase_book(request, pk):
+    book = get_object_or_404(Book, id=pk)
+
+    if request.method == 'POST':
+        payment_type = request.POST.get('payment_type')  # Retrieve selected payment type
+        
+        if not payment_type:
+            messages.error(request, "Please select a payment method.")
+            return render(request, 'library/purchase_book.html', {'book': book})
+
+        if book.stock_quantity > 0:  # Ensure there is stock available
+            # Decrease the stock quantity
+            book.stock_quantity -= 1
+            book.save()
+
+            # Create a payment record
+            payment = Payment.objects.create(
+                amount=book.price,
+                payment_type=payment_type,  # Save the selected payment type
+                user=request.user,
+                payment_action=2  # Indicating a purchase action
+            )
+
+            # Success message and redirect
+            messages.success(request, f"You have successfully purchased {book.book_title}. Payment ID: {payment.id}")
+            return redirect('home_path')  # Redirect to a desired page after purchase
+        else:
+            # If no stock is available
+            messages.error(request, f"Sorry, {book.book_title} is out of stock.")
+            return redirect('home_path')
+
+    return render(request, 'library/purchase_book.html', {'book': book})
+
+
+
+    
+from library.models import Notification
+
+def notifications(request):
+    user_notifications = Notification.objects.filter(user=request.user, is_read=False)
+    return render(request, 'library/notifications.html', {'notifications': user_notifications})
+
+
+def notification_view(request):
+    notifications = Notification.objects.filter(user=request.user)
+    unread_count = notifications.filter(is_read=False).count()  # Assuming you have an `is_read` field
+
+    context = {
+        'notifications': notifications,
+        'unread_count': unread_count,
+    }
+    return render(request, 'library/topbar.html', context)

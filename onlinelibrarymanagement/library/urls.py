@@ -32,6 +32,16 @@ urlpatterns =[
     path('logout/',views.custom_logout,name="logout"),
     path('admin_dashboard/edit_subscriptions/<int:pk>/',views.edit_subscriptions,name='edit_subscriptions'),
     path('subscribe/<int:pk>',views.subscribe,name="subscribe"),
-    path('payment/',views.process_payment,name="process_payment")
+    path('payment/',views.process_payment,name="process_payment"),
+    path('upgrade_plan/<int:pk>/',views.upgrade_plan,name="upgrade_plan"),
+    # path('process_payment/<int:subscription_id>/', views.process_payment, name='process_payment'),
+    path('confirm_subscription/<int:pk>/', views.confirm_subscription, name='confirm_subscription'),
+    # path('subscribe/', views.subscribe_plan, name='subscribe_plan'),
+    # path('subscribe/<int:pk>/',views.subscribe,name="subscribe")
+    path('subscription/',views.subscription_home,name="subscription_home"),
+    path('purchase_book/<int:pk>/',views.purchase_book,name="purchase_book"),
+    path("notifications/",views.notifications,name="notifications"),
+    # path('notify/',views.notification_view,name="notifications")
+
 
 ]

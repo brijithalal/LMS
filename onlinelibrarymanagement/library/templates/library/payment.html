@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{% comment %} <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -100,6 +100,202 @@
             } else if (paymentMethod === "bank_transfer") {
                 bankTransferForm.style.display = "block";
             }
+        }
+    </script>
+</body>
+</html> {% endcomment %}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Page</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .error-message {
+            color: #f44336;
+            display: none;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <h2 class="text-center mb-4">Complete Your Payment</h2>
+
+        <div class="row">
+            <div class="col-md-6 offset-md-3">
+                <form method="POST" action="{% url 'process_payment' %}" onsubmit="return validateForm()">
+                    {% csrf_token %}
+                    <input type="hidden" name="subscription_id" value="{{ subscription_id.id }}">
+
+                    <div class="form-group mb-4">
+                        <label for="payment_method" class="form-label">Select Payment Method</label>
+                        <select class="form-select" id="payment_method" name="payment_method" onchange="showPaymentForm()" required>
+                            <option value="" selected disabled>Select Payment Method</option>
+                            <option value="credit_card">Credit Card</option>
+                            <option value="google_pay">Google Pay</option>
+                            <option value="bank_transfer">Bank Transfer</option>
+                        </select>
+                        <div id="payment_method_error" class="error-message">Please select a payment method.</div>
+                    </div>
+
+                    <!-- Credit Card Form -->
+                    <div id="credit_card_form" class="payment-form" style="display:none;">
+                        <h4>Credit Card Details</h4>
+                        <div class="form-group mb-3">
+                            <label for="card_number">Card Number</label>
+                            <input type="text" class="form-control" id="card_number" name="card_number" placeholder="Enter card number">
+                            <div id="card_number_error" class="error-message">Please enter your card number.</div>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="expiry_date">Expiry Date</label>
+                            <input type="text" class="form-control" id="expiry_date" name="expiry_date" placeholder="MM/YY">
+                            <div id="expiry_date_error" class="error-message">Please enter the expiry date.</div>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="cvv">CVV</label>
+                            <input type="text" class="form-control" id="cvv" name="cvv" placeholder="Enter CVV">
+                            <div id="cvv_error" class="error-message">Please enter the CVV.</div>
+                        </div>
+                    </div>
+
+                    <!-- Google Pay Form -->
+                    <div id="google_pay_form" class="payment-form" style="display:none;">
+                        <h4>Google Pay</h4>
+                        <p>Select Google Pay from the available options on your device or browser to complete the payment.</p>
+                        <div class="form-group mb-3">
+                            <label for="upi_id">Enter UPI ID</label>
+                            <input type="text" class="form-control" id="upi_id" name="upi_id" placeholder="example@upi">
+                            <div id="upi_id_error" class="error-message">Please enter your UPI ID.</div>
+                        </div>
+                        <!-- Google Pay button (simplified for UI) -->
+                        {% comment %} <button type="button" class="btn btn-success">Pay with Google Pay</button> {% endcomment %}
+                    </div>
+
+                    <!-- Bank Transfer Form -->
+                    <div id="bank_transfer_form" class="payment-form" style="display:none;">
+                        <h4>Bank Transfer Details</h4>
+                        <div class="form-group mb-3">
+                            <label for="bank_account_number">Bank Account Number</label>
+                            <input type="text" class="form-control" id="bank_account_number" name="bank_account_number" placeholder="Enter bank account number">
+                            <div id="bank_account_number_error" class="error-message">Please enter your bank account number.</div>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="bank_name">Bank Name</label>
+                            <input type="text" class="form-control" id="bank_name" name="bank_name" placeholder="Enter bank name">
+                            <div id="bank_name_error" class="error-message">Please enter your bank name.</div>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="bank_transfer_ref">Transfer Reference</label>
+                            <input type="text" class="form-control" id="bank_transfer_ref" name="bank_transfer_ref" placeholder="Enter transfer reference number">
+                            <div id="bank_transfer_ref_error" class="error-message">Please enter the transfer reference number.</div>
+                        </div>
+                    </div>
+                    
+                    <a href=""><button type="submit" class="btn btn-primary mt-3">Submit Payment</button></a>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Function to toggle payment forms based on selected payment method
+        function showPaymentForm() {
+            const paymentMethod = document.getElementById("payment_method").value;
+            const creditCardForm = document.getElementById("credit_card_form");
+            const googlePayForm = document.getElementById("google_pay_form");
+            const bankTransferForm = document.getElementById("bank_transfer_form");
+
+            // Hide all payment forms
+            creditCardForm.style.display = "none";
+            googlePayForm.style.display = "none";
+            bankTransferForm.style.display = "none";
+
+            // Hide all error messages
+            hideAllErrors();
+
+            // Show the selected payment form
+            if (paymentMethod === "credit_card") {
+                creditCardForm.style.display = "block";
+            } else if (paymentMethod === "google_pay") {
+                googlePayForm.style.display = "block";
+            } else if (paymentMethod === "bank_transfer") {
+                bankTransferForm.style.display = "block";
+            }
+        }
+
+        // Function to hide all error messages
+        function hideAllErrors() {
+            const errorMessages = document.querySelectorAll('.error-message');
+            errorMessages.forEach(function(error) {
+                error.style.display = 'none';
+            });
+        }
+
+        // Function to validate the form before submission
+        function validateForm() {
+            let isValid = true;
+
+            // Hide all previous error messages
+            hideAllErrors();
+
+            // Validate payment method selection
+            const paymentMethod = document.getElementById("payment_method").value;
+            if (!paymentMethod) {
+                document.getElementById("payment_method_error").style.display = 'block';
+                isValid = false;
+            }
+
+            // Validate based on selected payment method
+            if (paymentMethod === "credit_card") {
+                const cardNumber = document.getElementById("card_number").value.trim();
+                const expiryDate = document.getElementById("expiry_date").value.trim();
+                const cvv = document.getElementById("cvv").value.trim();
+
+                if (!cardNumber) {
+                    document.getElementById("card_number_error").style.display = 'block';
+                    isValid = false;
+                }
+                if (!expiryDate) {
+                    document.getElementById("expiry_date_error").style.display = 'block';
+                    isValid = false;
+                }
+                if (!cvv) {
+                    document.getElementById("cvv_error").style.display = 'block';
+                    isValid = false;
+                }
+            } else if (paymentMethod === "google_pay") {
+                const upiId = document.getElementById("upi_id").value.trim();
+                if (!upiId) {
+                    document.getElementById("upi_id_error").style.display = 'block';
+                    isValid = false;
+                }
+            } else if (paymentMethod === "bank_transfer") {
+                const bankAccountNumber = document.getElementById("bank_account_number").value.trim();
+                const bankName = document.getElementById("bank_name").value.trim();
+                const bankTransferRef = document.getElementById("bank_transfer_ref").value.trim();
+
+                if (!bankAccountNumber) {
+                    document.getElementById("bank_account_number_error").style.display = 'block';
+                    isValid = false;
+                }
+                if (!bankName) {
+                    document.getElementById("bank_name_error").style.display = 'block';
+                    isValid = false;
+                }
+                if (!bankTransferRef) {
+                    document.getElementById("bank_transfer_ref_error").style.display = 'block';
+                    isValid = false;
+                }
+            }
+
+            return isValid;
         }
     </script>
 </body>

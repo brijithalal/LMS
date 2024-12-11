@@ -1,0 +1,231 @@
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchase Book</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script>
+        function handlePaymentTypeChange() {
+            const paymentType = document.getElementById("paymentType").value;
+            const upiField = document.getElementById("upiField");
+            const cardField = document.getElementById("cardField");
+            const bankField = document.getElementById("bankField");
+
+            // Hide all fields initially
+            upiField.style.display = "none";
+            cardField.style.display = "none";
+            bankField.style.display = "none";
+
+            // Show the relevant field based on the selected payment type
+            if (paymentType === "googlepay") {
+                upiField.style.display = "block";
+            } else if (paymentType === "creditcard") {
+                cardField.style.display = "block";
+            } else if (paymentType === "banktransfer") {
+                bankField.style.display = "block";
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Purchase Book</h1>
+        <div class="card mx-auto" style="max-width: 500px;">
+            <div class="card-body">
+                <h5 class="card-title">{{ book.book_title }}</h5>
+             <img src="{{ book.book_image.url }}" class="card-img-top w-50" alt="{{ book.title }}">  
+                <p class="card-text">Author: {{ book.author }}</p>
+                <p class="card-text">Price: ₹{{ book.price }}</p>
+                <p class="card-text">Genre: {{ book.category }}</p>
+                <p class="card-text">Description: {{ book.description }}</p>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="paymentType" class="form-label">Select Payment Method</label>
+                        <select name="payment_type" id="paymentType" class="form-select" required onchange="handlePaymentTypeChange()">
+                            <option value="" disabled selected>Select the payment method</option>
+                            <option value="googlepay">Google Pay</option>
+                            <option value="creditcard">Credit Card</option>
+                            <option value="banktransfer">Bank Transfer</option>
+                        </select>
+                    </div>
+
+                    <!-- Google Pay Field -->
+                    <div class="mb-3" id="upiField" style="display: none;">
+                        <label for="upiId" class="form-label">Enter Your UPI ID</label>
+                        <input type="text" name="upi_id" id="upiId" class="form-control" placeholder="example@upi">
+                    </div>
+
+                    <!-- Credit Card Fields -->
+                    <div id="cardField" style="display: none;">
+                        <div class="mb-3">
+                            <label for="cardNumber" class="form-label">Card Number</label>
+                            <input type="text" name="card_number" id="cardNumber" class="form-control" placeholder="1234 5678 9123 4567">
+                        </div>
+                        <div class="mb-3">
+                            <label for="cardExpiry" class="form-label">Expiry Date</label>
+                            <input type="month" name="card_expiry" id="cardExpiry" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="cardCvv" class="form-label">CVV</label>
+                            <input type="password" name="card_cvv" id="cardCvv" class="form-control" maxlength="3">
+                        </div>
+                    </div>
+
+                    <!-- Bank Transfer Field -->
+                    <div class="mb-3" id="bankField" style="display: none;">
+                        <label for="accountNumber" class="form-label">Bank Account Number</label>
+                        <input type="text" name="account_number" id="accountNumber" class="form-control" placeholder="1234567890">
+                        <label for="ifscCode" class="form-label mt-2">IFSC Code</label>
+                        <input type="text" name="ifsc_code" id="ifscCode" class="form-control" placeholder="ABCD0123456">
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100">Confirm Purchase</button>
+                </form>
+            </div>
+        </div>
+        <div class="text-center mt-3">
+            <a href="{% url 'home_path' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </div>
+</body>
+</html> {% endcomment %}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchase Book</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script>
+        function handlePaymentTypeChange() {
+            const paymentType = document.getElementById("paymentType").value;
+            const upiField = document.getElementById("upiField");
+            const cardField = document.getElementById("cardField");
+            const bankField = document.getElementById("bankField");
+
+            // Hide all fields initially
+            upiField.style.display = "none";
+            cardField.style.display = "none";
+            bankField.style.display = "none";
+
+            // Show the relevant field based on the selected payment type
+            if (paymentType === "googlepay") {
+                upiField.style.display = "block";
+            } else if (paymentType === "creditcard") {
+                cardField.style.display = "block";
+            } else if (paymentType === "banktransfer") {
+                bankField.style.display = "block";
+            }
+        }
+
+        function validateForm(event) {
+            const paymentType = document.getElementById("paymentType").value;
+            const errorField = document.getElementById("errorField");
+
+            let isValid = true;
+            let errorMessage = "";
+
+            if (!paymentType) {
+                isValid = false;
+                errorMessage = "Please select a payment method.";
+            } else if (paymentType === "googlepay") {
+                const upiId = document.getElementById("upiId").value;
+                if (!upiId) {
+                    isValid = false;
+                    errorMessage = "Please enter your UPI ID.";
+                }
+            } else if (paymentType === "creditcard") {
+                const cardNumber = document.getElementById("cardNumber").value;
+                const cardExpiry = document.getElementById("cardExpiry").value;
+                const cardCvv = document.getElementById("cardCvv").value;
+                if (!cardNumber || !cardExpiry || !cardCvv) {
+                    isValid = false;
+                    errorMessage = "Please fill out all credit card details.";
+                }
+            } else if (paymentType === "banktransfer") {
+                const accountNumber = document.getElementById("accountNumber").value;
+                const ifscCode = document.getElementById("ifscCode").value;
+                if (!accountNumber || !ifscCode) {
+                    isValid = false;
+                    errorMessage = "Please enter your bank account details and IFSC code.";
+                }
+            }
+
+            if (!isValid) {
+                event.preventDefault(); // Prevent form submission
+                errorField.textContent = errorMessage; // Display the error message
+                errorField.style.display = "block"; // Show the error message
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Purchase Book</h1>
+        <div class="card mx-auto" style="max-width: 500px;">
+            <div class="card-body">
+                <h5 class="card-title">{{ book.book_title }}</h5>
+                <img src="{{ book.book_image.url }}" class="card-img-top w-50" alt="{{ book.title }}">
+                <p class="card-text">Author: {{ book.author }}</p>
+                <p class="card-text">Price: ₹{{ book.price }}</p>
+                <p class="card-text">Genre: {{ book.category }}</p>
+                <p class="card-text">Description: {{ book.description }}</p>
+                <form method="POST" onsubmit="validateForm(event)">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="paymentType" class="form-label">Select Payment Method</label>
+                        <select name="payment_type" id="paymentType" class="form-select" required onchange="handlePaymentTypeChange()">
+                            <option value="" disabled selected>Select the payment method</option>
+                            <option value="googlepay">Google Pay</option>
+                            <option value="creditcard">Credit Card</option>
+                            <option value="banktransfer">Bank Transfer</option>
+                        </select>
+                    </div>
+
+                    <!-- Error Field -->
+                    <div id="errorField" class="alert alert-danger" style="display: none;"></div>
+
+                    <!-- Google Pay Field -->
+                    <div class="mb-3" id="upiField" style="display: none;">
+                        <label for="upiId" class="form-label">Enter Your UPI ID</label>
+                        <input type="text" name="upi_id" id="upiId" class="form-control" placeholder="example@upi">
+                    </div>
+
+                    <!-- Credit Card Fields -->
+                    <div id="cardField" style="display: none;">
+                        <div class="mb-3">
+                            <label for="cardNumber" class="form-label">Card Number</label>
+                            <input type="text" name="card_number" id="cardNumber" class="form-control" placeholder="1234 5678 9123 4567">
+                        </div>
+                        <div class="mb-3">
+                            <label for="cardExpiry" class="form-label">Expiry Date</label>
+                            <input type="month" name="card_expiry" id="cardExpiry" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="cardCvv" class="form-label">CVV</label>
+                            <input type="password" name="card_cvv" id="cardCvv" class="form-control" maxlength="3">
+                        </div>
+                    </div>
+
+                    <!-- Bank Transfer Field -->
+                    <div class="mb-3" id="bankField" style="display: none;">
+                        <label for="accountNumber" class="form-label">Bank Account Number</label>
+                        <input type="text" name="account_number" id="accountNumber" class="form-control" placeholder="1234567890">
+                        <label for="ifscCode" class="form-label mt-2">IFSC Code</label>
+                        <input type="text" name="ifsc_code" id="ifscCode" class="form-control" placeholder="ABCD0123456">
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100">Confirm Purchase</button>
+                </form>
+            </div>
+        </div>
+        <div class="text-center mt-3">
+            <a href="{% url 'home_path' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -16,21 +16,21 @@
             <div class="col-12 col-md-8">
                 <div class="card shadow-sm border-warning">
                     <div class="card-body">
-                        <h5 class="card-title text-warning">You are currently on the {{ current_plan.plan_name }} plan.</h5>
-                        <p class="card-text">You are eligible to upgrade to the {{ new_plan.plan_name }} plan, which includes additional features and content.</p>
-                        <p class="card-text">Price: ${{ new_plan.price }}</p>
-                        <p class="card-text">Duration: {{ new_plan.duration }} months</p>
+                        <h5 class="card-title text-warning">You are currently on the {{ active_subscription.plan_name }} plan.</h5>
+                        <p class="card-text">You are eligible to upgrade to the {{ plan_to_upgrade.plan_name }} plan, which includes additional features and content.</p>
+                        <p class="card-text">Price: ${{ plan_to_upgrade.price }}</p>
+                        <p class="card-text">Duration: {{ plan_to_upgrade.duration }} months</p>
                     </div>
                     <div class="card-footer text-center">
-                        <a href="{% url 'confirm_subscription' new_plan.id %}" class="btn btn-warning">Upgrade Now</a>
-                        <a href="{% url 'home' %}" class="btn btn-secondary">Cancel</a>
+                        <a href="{% url 'subscribe' plan_to_upgrade.id %}" class="btn btn-warning">Upgrade Now</a>
+                        <a href="{% url 'home_path' %}" class="btn btn-secondary">Cancel</a>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="mt-4">
-            <a href="{% url 'home' %}" class="btn btn-secondary">Back to Dashboard</a>
+            <a href="{% url 'home_path' %}" class="btn btn-secondary">Back to Dashboard</a>
         </div>
     </div>
 

@@ -89,16 +89,30 @@ class Payment(models.Model):
         ('banktransfer','Bank Transfer')
 
     )
+
+    pay_action = (
+        (1,'Subscription'),
+        (2,'Purchase'),
+        (3,'Rent')
+    )
     amount = models.DecimalField(max_digits=10,decimal_places=2)
     payment_date = models.DateTimeField(auto_now_add=True)
     payment_type = models.CharField(max_length=50,choices=pay_type)
     user = models.ForeignKey(User,related_name='payment',on_delete=models.CASCADE)
+    payment_action = models.PositiveSmallIntegerField(choices=pay_action,default=1)
 
     def __str__(self):
         return self.user.username
     
 
+class Notification(models.Model):
+    user = models.ForeignKey(User, related_name="notifications", on_delete=models.CASCADE)
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
 
+    def _str_(self):
+        return f"Notification for {self.user.username}: {self.message}"
 
 
 
