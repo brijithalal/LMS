@@ -1145,6 +1145,7 @@ from django.contrib import messages
 from .models import Payment, Subscriptions
 
 def process_payment(request):
+    user=request.user
     if request.method == "POST":
         payment_method = request.POST.get('payment_method')
         subscription_id = request.POST.get('subscription_id')  # Assuming the subscription ID is passed in the form
@@ -1175,6 +1176,12 @@ def process_payment(request):
                 user=subscription.user
             )
             payment.save()
+            active_subscription = Subscriptions.objects.filter(user=user, end_date__gte=now(), status=1).first()
+            
+            
+            if active_subscription:
+                active_subscription.status=2
+                active_subscription.save()
             
             # Update subscription status to "Active"
             subscription.status = 1  # Status "1" corresponds to "Active"
@@ -1711,23 +1718,6 @@ def upgrade_plan(request, pk):
         messages.info(request, "You cannot upgrade to a plan with equal or lower value.")
         return redirect('view_subscriptions_plans_user')
 
-    if request.method == "POST":
-        # Mark the current subscription as expired
-        active_subscription.status = 2  # Expired
-        active_subscription.save()
-
-        # Create a new subscription for the upgraded plan
-        new_subscription = Subscriptions.objects.create(
-            user=user,
-            plan=plan_to_upgrade,
-            start_date=now(),
-            end_date=now() + relativedelta(months=plan_to_upgrade.duration),
-            status=1  # Active
-        )
-        new_subscription.save()
-
-        messages.success(request, f"Successfully upgraded to the {plan_to_upgrade.plan_name} plan!")
-        return redirect('view_subscriptions_plans_user')
 
     return render(request, 'library/upgrade_prompt.html', {
         'plan_to_upgrade': plan_to_upgrade,
@@ -1808,3 +1798,75 @@ def notification_view(request):
         'unread_count': unread_count,
     }
     return render(request, 'library/topbar.html', context)
+
+from .forms import AddCommentForm
+def add_comment(request):
+    if request.method=='POST':
+        comment=AddCommentForm(request.POST)
+        comment.save()
+    else:
+        comment=AddCommentForm()
+    return render(request,'library/postdetails.html',{'comment_form':comment})
+
+from .models import comments,Reviews      
+from django.shortcuts import render, get_object_or_404, redirect
+from .forms import AddCommentForm,AddReviewForm
+from .models import Book, comments, Reviews
+
+from django.contrib.auth.decorators import login_required  # Optional: To restrict access to logged-in users
+
+@login_required
+def book_view(request, pk):
+    book = get_object_or_404(Book, id=pk)
+    comment_list = comments.objects.filter(book_comments=book)
+    reviews = Reviews.objects.filter(post=book)
+
+    # Prepare star ranges for each review
+    for review in reviews:
+        review.filled_stars = range(review.rating)  # Range for filled stars
+        review.empty_stars = range(5 - review.rating)  # Range for empty stars
+
+    # Initialize forms for comments and reviews
+    comment_form = AddCommentForm()
+    review_form = AddReviewForm()
+
+    if request.method == "POST":
+        if "add_comment" in request.POST:  # Handle comment submission
+            comment_form = AddCommentForm(request.POST)
+            if comment_form.is_valid():
+                new_comment = comment_form.save(commit=False)
+                new_comment.book_comments = book
+                new_comment.save()
+                return redirect('view_book_details', pk=pk)
+        elif "add_review" in request.POST:  # Handle review submission
+            review_form = AddReviewForm(request.POST)
+            if review_form.is_valid():
+                new_review = review_form.save(commit=False)
+                new_review.post = book
+                new_review.review_author = request.user
+                new_review.save()
+                return redirect('view_book_details', pk=pk)
+
+    return render(request, "library/book_view.html", {
+        'book': book,
+        "comm": comment_list,
+        'reviews': reviews,
+        'comment_form': comment_form,
+        'review_form': review_form,
+    })
+
+
+
+def subscribe_upgrade(request,pk):
+    user = request.user
+    active_subscription = Subscriptions.objects.filter(user=user, end_date__gte=now(), status=1).first()
+    new_plan=SubscriptionPlans.objects.get(id=pk)
+    end_date = timezone.now() + relativedelta(months=new_plan.duration)
+    subscription = Subscriptions.objects.create(
+        user=user,
+        plan=new_plan,
+        start_date=timezone.now(),
+        end_date=end_date,
+        status=3  # Initial status set to "pending"
+    )
+    return render(request, 'library/payment.html', {"subscription_id": subscription})

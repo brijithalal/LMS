@@ -182,6 +182,7 @@
                         <p class="card-text">Price: ₹{{ book.price }}</p>
                         <p class="card-text">Rent Price: ₹{{ book.rent_price }}</p>
                         <p class="card-text">Genre: {{ book.category }}</p>
+                        <a href="{% url 'view_book_details' book.id%}" class="btn btn-dark">View Book</a>
                         <a href="{% if user.is_authenticated %}{% url 'rent_book' book.id %}{% else %}{% url 'login' %}{% endif %}" class="btn btn-dark">Rent Book</a>
                         {% comment %} <a href="{% url 'home_path' %}rent_book/{{book.id}}" class="btn btn-dark">Rent Book</a>  {% endcomment %}
                   <a href="{% url 'purchase_book' book.id%}" class="btn btn-dark">Purchase Book</a>

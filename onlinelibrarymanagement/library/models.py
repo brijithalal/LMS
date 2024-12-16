@@ -116,26 +116,33 @@ class Notification(models.Model):
 
 
 
+   
+class comments(models.Model):
+    book_comments=models.ForeignKey(Book,on_delete=models.CASCADE)
+    comment_text=models.TextField()
+    comment_published_datetime=models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.comment_text
+    
+class Reviews(models.Model):
+    stars=(
+        (1,'one star'),
+        (2,'two star'),
+        (3,'three star'),
+        (4,'four star'),
+        (5,'five star')
+    )
+    post=models.ForeignKey(Book,related_name='review_of_book', on_delete=models.CASCADE)
+    rating=models.PositiveSmallIntegerField(choices=stars,default=1)
+    title=models.CharField(max_length=200)
+    description =models.TextField(blank=True)
+    review_author=models.ForeignKey(User,default=1 ,on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.title
 
 
 
 
 
-
-# def edit_category(request,pk):
-#     category_details = get_object_or_404(Category, id=pk)
-#     # plan_details = get_object_or_404(PlanCategory,id = pk)
-
-#     if request.method == 'POST':
-#         edit_category = EditCategoryForm(request.POST or None,request.FILES or None,instance=category_details)
-
-#         if edit_category.is_valid():
-#             edit_category.save()
-
-#             return redirect('view_category')
-#         else:
-#             print(edit_category.errors)
-#     else:
-
-#         edit_category  = EditCategoryForm(instance=category_details)
-#     return render(request,'library/edit_category.html',{'edit_category_form':edit_category})

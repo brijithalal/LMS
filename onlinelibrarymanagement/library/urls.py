@@ -42,6 +42,9 @@ urlpatterns =[
     path('purchase_book/<int:pk>/',views.purchase_book,name="purchase_book"),
     path("notifications/",views.notifications,name="notifications"),
     # path('notify/',views.notification_view,name="notifications")
+    path('book_view/<int:pk>',views.book_view,name="view_book_details"),
+    path('book_view/<int:pk>/addcomment',views.add_comment,name="add_comment"),
+    path('subscribe_upgrade/<int:pk>',views.subscribe_upgrade,name='subscribe_upgrade')
 
 
 ]

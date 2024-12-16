@@ -22,7 +22,7 @@
                         <p class="card-text">Duration: {{ plan_to_upgrade.duration }} months</p>
                     </div>
                     <div class="card-footer text-center">
-                        <a href="{% url 'subscribe' plan_to_upgrade.id %}" class="btn btn-warning">Upgrade Now</a>
+                        <a href="{% url 'subscribe_upgrade' plan_to_upgrade.id %}" class="btn btn-warning">Upgrade Now</a>
                         <a href="{% url 'home_path' %}" class="btn btn-secondary">Cancel</a>
                     </div>
                 </div>

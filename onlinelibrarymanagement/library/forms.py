@@ -310,3 +310,16 @@ class EditSubscriptionForm(forms.ModelForm):
                 PlanCategory.objects.create(plan=subscription_plan, category=category)
 
         return subscription_plan
+
+
+from . models import comments,Reviews
+class AddCommentForm(forms.ModelForm):
+    class Meta:
+        model=comments
+        fields=('comment_text',)
+
+
+class AddReviewForm(forms.ModelForm):
+    class Meta:
+        model= Reviews
+        fields=('rating','title','description')

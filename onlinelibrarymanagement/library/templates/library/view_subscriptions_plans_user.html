@@ -858,12 +858,17 @@
                 <div class="modal-body">
                     <ul class="list-group">
                         {% for plan in upgradeable_plans %}
+                        {% if plan %}
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <div>
                                     <strong>{{ plan.plan_name }}</strong> - ₹{{ plan.price }} for {{ plan.duration }} months
                                 </div>
                                 <a href="{% url 'upgrade_plan' plan.id %}" class="btn btn-warning btn-sm">Upgrade</a>
                             </li>
+                            {% else %}
+                            <h1>NOOOOOOOOOOOO</h1>
+                            {% endif %}
+                            
                         {% endfor %}
                     </ul>
                 </div>
