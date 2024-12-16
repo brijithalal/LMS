@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -6,67 +6,84 @@
     <title>Membership and Rentals</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f4f4;
+            color: #333;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+        .btn-dark, .btn-secondary {
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 1rem;
+            text-decoration: none;
+        }
+        .btn-dark {
+            background-color: #000;
+            color: white;
+            border: none;
+        }
+        .btn-dark:hover {
+            background-color: #000;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+        }
+        .btn-secondary:hover {
+            background-color: #495057;
+        }
+    </style>
 </head>
 <body>
     <div class="container py-5">
-        <h1 class="text-center text-primary mb-4">Membership and Rentals</h1>
-
+        <h1 class="text-center text-dark mb-4">Membership and Rentals</h1>
+    
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-            <!-- Gold Plan -->
+            {% for plan in subscriptions_list %}
             <div class="col">
-                <div class="card h-100 shadow-sm border-warning">
+                <div class="card h-100 shadow-sm">
                     <div class="card-body">
-                        <h5 class="card-title text-warning">Gold Plan</h5>
-                        <p class="card-text">This plan provides access to Fiction and Rental limits: <strong>28 days.</strong></p>
+                        <h5 class="card-title">{{ plan.plan_name }}</h5>
+                        <p class="card-text">
+                            <strong>Price:</strong> ₹{{ plan.price }}<br>
+                            <strong>Duration:</strong> {{ plan.duration }} months<br>
+                            <strong>Accessible Categories:</strong>
+                            <div>
+                                {% for plan_category in plan.plans.all %}
+                                    <span>{{ plan_category.category.category_name }}</span><br>
+                                {% empty %}
+                                    <span>No categories available.</span>
+                                {% endfor %}
+                            </div>
+                        </p>
                     </div>
-                    <div class="card-footer">
-                        <a href="{% url 'edit_subscriptions' 1%}" class="btn btn-warning btn-sm">Edit</a>
-                        
-                        
+                    <div class="card-footer text-center">
+                        <a href="{% url 'edit_subscriptions' plan.id %}" class="btn btn-dark btn-sm">Edit</a>
                     </div>
                 </div>
             </div>
-
-            <!-- Platinum Plan -->
-            <div class="col">
-                <div class="card h-100 shadow-sm border-primary">
-                    <div class="card-body">
-                        <h5 class="card-title text-primary">Platinum Plan</h5>
-                        <p class="card-text">This plan includes access to Fiction, Non-Fiction, and Biographies. Rental limits: <strong>60 days.</strong></p>
-                    </div>
-                    <div class="card-footer">
-                        
-                        <a href="{% url 'edit_subscriptions' 2%}" class="btn btn-warning btn-sm">Edit</a>
-                        
-                        
-                        
-                    </div>
-                </div>
-            </div>
-
-            <!-- Diamond Plan -->
-            <div class="col">
-                <div class="card h-100 shadow-sm border-success">
-                    <div class="card-body">
-                        <h5 class="card-title text-success">Diamond Plan</h5>
-                        <p class="card-text">This plan provides unlimited access to all categories, including Research and Study materials. Rental limits: <strong>100 days.</strong></p>
-                    </div>
-                    <div class="card-footer">
-                        <a href="{% url 'edit_subscriptions' 3%}" class="btn btn-warning btn-sm">Edit</a>
-                       
-                        
-                    </div>
-                </div>
-            </div>
+            {% endfor %}
         </div>
     
         <!-- Back Button -->
-        <div class="mt-4">
-            <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+        <div class="mt-4 text-center">
+            <a href="{% url 'home_path' %}" class="btn btn-secondary">Back to Dashboard</a>
         </div>
     </div>
 
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-</html> 
+</html>

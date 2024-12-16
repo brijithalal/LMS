@@ -3,6 +3,7 @@ from django.db import models
 # Create your models here.
 from django.db import models
 from django.contrib.auth.models import User
+from django.forms import ValidationError
 
 # Create your models here.
 class Authors(models.Model):
@@ -34,8 +35,12 @@ class Book(models.Model):
     category = models.ForeignKey(Category,related_name="books", on_delete=models.DO_NOTHING)
 
 
-    def __str__(self):
-        return self.book_title
+    def validate_pdf(value):
+        if not value.name.endswith('.pdf'):
+            raise ValidationError("Only PDF files are allowed.")
+
+        def __str__(self):
+            return self.book_title
     
 class SubscriptionPlans(models.Model):
     plan_name = models.CharField(max_length=250)
@@ -113,6 +118,88 @@ class Notification(models.Model):
 
     def _str_(self):
         return f"Notification for {self.user.username}: {self.message}"
+    
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    phone = models.CharField(max_length=10, blank=True, null=True)
+    address = models.TextField(max_length=150,blank=True, null=True)
+    date_of_birth = models.DateField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.user.username}'s Profile"
+    
+class Purchase(models.Model):
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
+    book = models.ForeignKey(Book,on_delete=models.DO_NOTHING)
+    date_added = models.DateField(auto_now_add=True)
+    amount = models.DecimalField(max_digits=10,decimal_places=2)
+
+    def __str__(self):
+        return self.user.username
+
+class comments(models.Model):
+    book_comments=models.ForeignKey(Book,on_delete=models.CASCADE)
+    comment_text=models.TextField()
+    comment_published_datetime=models.DateTimeField(auto_now_add=True)
+
+    def _str_(self):
+        return self.comment_text
+    
+class Reviews(models.Model):
+    stars=(
+        (1,'one star'),
+        (2,'two star'),
+        (3,'three star'),
+        (4,'four star'),
+        (5,'five star')
+    )
+    post=models.ForeignKey(Book,related_name='review_of_book', on_delete=models.CASCADE)
+    rating=models.PositiveSmallIntegerField(choices=stars,default=1)
+    title=models.CharField(max_length=200)
+    description =models.TextField(blank=True)
+    review_author=models.ForeignKey(User,default=1 ,on_delete=models.CASCADE)
+
+    def _str_(self):
+        return self.title
+    
+
+
+class Wishlist(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'book')  # Prevent duplicate entries
+
+class Cart(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="cart")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username}'s Cart"
+
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="items")
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return f"{self.book.book_title} - {self.quantity} pcs"
+
+    def get_total_price(self):
+        return self.book.price * self.quantity
+
+
+
+# class Cart(models.Model):
+#     quantity = models.IntegerField()
+#     price = models.DecimalField(max_digits=10,decimal_places=2)
+#     user = models.ForeignKey(User,related_name="user",on_delete=models.CASCADE)
+
 
 
 

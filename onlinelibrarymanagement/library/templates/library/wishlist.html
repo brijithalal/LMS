@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Wishlist</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa; /* Light gray background */
+            color: #212529;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-family: "Lato", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+        }
+
+        .navbar {
+            background-color: #000; /* Dark gray navbar */
+        }
+
+        .navbar-brand, .nav-link {
+            color: #ffffff !important; /* White text on navbar */
+        }
+
+        footer {
+            background-color: #000;
+            color: #ffffff;
+            text-align: center;
+            padding: 10px;
+            margin-top: auto; /* Push footer to the bottom */
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Library</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home_path' %}">Home</a>
+                    </li>
+                    {% comment %} <li class="nav-item">
+                        <a class="nav-link" href="{% url 'wishlist' %}">My Wishlist</a>
+                    </li> {% endcomment %}
+                </ul>
+                {% if user.is_authenticated %}
+                <span class="text-white me-3">Welcome, {{ request.user.first_name }}</span>
+                <a href="{% url 'logout' %}" class="btn btn-outline-light btn-sm">Logout</a>
+                {% else %}
+                <a href="{% url 'login' %}" class="btn btn-outline-light btn-sm">Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Wishlist Section -->
+    <div class="container my-5">
+        <h2>My Wishlist</h2>
+        <div class="row">
+            {% for item in wishlist_items %}
+           <div class="col-md-4">
+                <div class="card">
+
+                    <div class="card-body">
+                        <a href="{% url 'book_details' item.book.id%}" class="text-decoration-none" class="card">
+                        <h5 class="card-title">{{ item.book.title }}</h5>
+                        <p class="card-text">Author: {{ item.book.author }}</p>
+                        <p class="card-text">Price: ₹{{ item.book.price }}</p>
+                        <a href="{% url 'remove_from_wishlist' item.book.id %}" class="btn btn-danger">Remove</a>
+                    </a></div>
+                </div>
+                <br/><br/>
+            </div>
+        
+            {% empty %}
+            <p>You have no books in your wishlist.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 Library System. All Rights Reserved.</p>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

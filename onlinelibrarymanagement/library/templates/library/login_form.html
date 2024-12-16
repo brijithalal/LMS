@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,38 +8,113 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #f8f9fa; /* Light background color */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh; /* Full viewport height */
-            margin: 0;
+            background-color: #f8f9fa;
+            padding: 20px;
+            font-family: "Lato", sans-serif;
         }
         .login-container {
-            background: #ffffff; /* White background for the form */
+            max-width: 400px;
+            margin: 100px auto;
+            background-color: #ffffff;
             padding: 30px;
-            border-radius: 10px; /* Rounded corners */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-            max-width: 400px; /* Limits the form width */
-            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        .btn-warning {
-            width: 100%; /* Full-width button */
+        .form-header {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .form-control {
+            border: 2px solid #666;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            font-size: 1rem;
+            border-radius: 5px;
+            background-color: #000;
+            color: white;
+            border: none;
+        }
+        .btn-submit:hover {
+            background-color: #333;
         }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <h3 class="text-center text-primary">Please Log In</h3>
-        <form action="" method="post" novalidate>
+        <h3 class="form-header">Please Log In</h3>
+        
+        <!-- Login Form -->
+        <form id="loginForm" method="post" onsubmit="return validateLogin()">
             {% csrf_token %}
-            <!-- Render Django form fields -->
-            {{ login_form.as_p }}
-            <button type="submit" class="btn btn-warning mt-3">Log In</button>
+            
+            <!-- Username -->
+            <div class="mb-3">
+                <input type="text" class="form-control" id="username" name="username" placeholder="Enter Username" required>
+            </div>
+
+            <!-- Password -->
+            <div class="mb-3">
+                <input type="password" class="form-control" id="password" name="password" placeholder="Enter Password" required>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn-submit mt-3">Log In</button>
         </form>
+
+        <!-- Register and Forgot Password Links -->
+        <div class="text-center mt-3">
+            <p>Don't have an account? <a href="{% url 'register' %}">Create New User</a></p>
+            <p><a href="{% url 'password_change' %}">Forgot Password?</a></p>
+        </div>
     </div>
 
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- JavaScript for Validation -->
+    <script>
+        function showErrorModal(message) {
+            // Set the error message in the modal
+            const errorModalMessage = document.getElementById('errorModalMessage');
+            errorModalMessage.textContent = message;
+    
+            // Show the modal using Bootstrap's modal API
+            const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+            errorModal.show();
+        }
+    
+        function validateLogin() {
+            // Get form values
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+    
+            // Basic validation
+            if (!username || !password) {
+                alert("Both username and password are required.");
+                return false;
+            }
+    
+            if (username.length < 3 || password.length < 5) {
+                alert("Username must be at least 3 characters and password at least 5 characters.");
+                return false;
+            }
+    
+            // Simulate backend validation failure for demonstration (replace with actual backend logic)
+            const mockValidCredentials = { username: "admin", password: "admin123" };
+    
+            if (username !== mockValidCredentials.username || password !== mockValidCredentials.password) {
+                alert("Invalid username or password. Please try again.");
+                return false;
+            }
+    
+            // If everything is valid, allow form submission
+            return true;
+        }
+    </script>
 </body>
 </html>

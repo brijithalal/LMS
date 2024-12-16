@@ -1,5 +1,4 @@
-
-<!DOCTYPE html>
+{% comment %} <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -102,10 +101,11 @@
     </style>
 </head>
 <body>
-      <!-- Custom Alert Box -->
-      <div id="customAlert" class="custom-alert">
+    <!-- Custom Alert Box -->
+    <div id="customAlert" class="custom-alert">
         You have already rented this book.
     </div>
+
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg">
         <div class="container-fluid">
@@ -118,7 +118,6 @@
                     <li class="nav-item">
                         <a class="nav-link active" href="{% url 'home_path' %}">Home</a>
                     </li>
-                   
                 </ul>
                 {% if user.is_authenticated %}
                 <li class="nav-item">
@@ -126,13 +125,6 @@
                 </li>&nbsp;&nbsp;&nbsp;&nbsp;
                 <div class="d-flex align-items-center">
                     <span class="text-white me-3">Welcome, {{ request.user.first_name }} {{ request.user.last_name }}</span>
-{% comment %} 
-                    <a href="{% url 'notifications' %}" class="btn btn-outline-light btn-sm">Notifications</a> &nbsp;&nbsp;  
-                                    {% endcomment %}
-                                    {% comment %} <a href="{% url 'notifications' %}" class="btn btn-outline-light btn-sm">
-                                        <i class="bi bi-bell"></i>
-                                    </a> {% endcomment %}
-                                    
                     <a href="{% url 'notifications' %}" class="btn btn-outline-light btn-sm position-relative">
                         <i class="bi bi-bell"></i>
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
@@ -151,7 +143,6 @@
     </nav>
 
     <!-- Hero Section -->
-     
     <div class="hero-section">
         <h1>Welcome to Our Library</h1>
         <p>Explore a world of books and exciting subscription plans.</p>
@@ -159,32 +150,33 @@
     </div>
 
     <!-- Books Section -->
-    
     <div class="container my-5">
-
-           <!-- Displaying Messages -->
-         {% if messages %}
-             <div class="alert alert-success">
-             {% for message in messages %}
-              <p>{{ message }}</p>
-         {% endfor %}
-             </div>
+        {% if messages %}
+        <div class="alert alert-success">
+            {% for message in messages %}
+            <p>{{ message }}</p>
+            {% endfor %}
+        </div>
         {% endif %}
+        
         <h2 class="mb-4 text-center">Available Books</h2>
         <div class="row row-cols-1 row-cols-md-3 g-4">
             {% for book in view_books %}
             <div class="col">
-                <div class="card h-100"> 
-                      {% comment %} <img src="{{ book.book_image.url }}" class="card-img-top w-50" alt="{{ book.title }}">   {% endcomment %}
-                         <div class="card-body">
+                <div class="card h-100">
+                    <div class="card-body">
                         <h5 class="card-title">{{ book.book_title }}</h5>
                         <p class="card-text">Author: {{ book.author }}</p>
                         <p class="card-text">Price: ₹{{ book.price }}</p>
                         <p class="card-text">Rent Price: ₹{{ book.rent_price }}</p>
                         <p class="card-text">Genre: {{ book.category }}</p>
-                        <a href="{% if user.is_authenticated %}{% url 'rent_book' book.id %}{% else %}{% url 'login' %}{% endif %}" class="btn btn-dark">Rent Book</a>
-                        {% comment %} <a href="{% url 'home_path' %}rent_book/{{book.id}}" class="btn btn-dark">Rent Book</a>  {% endcomment %}
-                  <a href="{% url 'purchase_book' book.id%}" class="btn btn-dark">Purchase Book</a>
+                        
+                        {% if book in rented_books %}
+                            <a href="{% url 'reading_interface' book.id %}" class="btn btn-dark">Read Book</a>
+                        {% else %}
+                            <a href="{% if user.is_authenticated %}{% url 'rent_book' book.id %}{% else %}{% url 'login' %}{% endif %}" class="btn btn-dark">Rent Book</a>
+                            <a href="{% url 'purchase_book' book.id %}" class="btn btn-dark">Purchase Book</a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -209,4 +201,893 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-</html>  
+</html> {% endcomment %}
+
+{% comment %} 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Home</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #ffffff; /* White background */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            color: #000000; /* Black text for readability */
+        }
+
+        .navbar {
+            background-color: #000000; /* Black navbar */
+        }
+
+        .navbar-brand, .nav-link {
+            color: #ffffff !important; /* White text on navbar */
+        }
+
+        .nav-link:hover {
+            background-color: #333333; /* Slightly lighter black on hover */
+            border-radius: 5px;
+        }
+
+        .hero-section {
+            background-color: #000000; /* Black background */
+            color: #ffffff; /* White text */
+            padding: 40px;
+            text-align: center;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+        }
+
+        .hero-section h1 {
+            font-size: 2.8rem;
+        }
+
+        .btn-custom {
+            background-color: #ffffff; /* White button */
+            color: #000000; /* Black text */
+            border: 2px solid #000000;
+        }
+
+        .btn-custom:hover {
+            background-color: #000000; /* Black button on hover */
+            color: #ffffff; /* White text on hover */
+        }
+
+        .card {
+            border: 1px solid #000000; /* Black border for card */
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Subtle shadow */
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            color: #000000; /* Black card title */
+        }
+
+        footer {
+            background-color: #000000; /* Black footer */
+            color: #ffffff; /* White text */
+            text-align: center;
+            padding: 10px;
+            margin-top: auto; /* Push footer to bottom */
+        }
+
+        footer a {
+            color: #ffffff; /* White links */
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline; /* Underline on hover */
+        }
+
+        .custom-alert {
+            position: fixed;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #f44336;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 5px;
+            display: none;  /* Initially hidden */
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+    <!-- Custom Alert Box -->
+    <div id="customAlert" class="custom-alert">
+        You have already rented this book.
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Library</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'home_path' %}">Home</a>
+                    </li>
+                    
+                   
+                </ul>
+                {% if user.is_authenticated %}
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'rented_books' %}">My Rented Books</a>
+                    </li>
+                </ul>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'view_subscriptions_plans_user' %}">My Plans</a>
+                </li>&nbsp;&nbsp;&nbsp;&nbsp;
+                <div class="d-flex align-items-center">
+                    <span class="text-white me-3">Welcome, {{ request.user.first_name }} {{ request.user.last_name }}</span>
+                    <a href="{% url 'notifications' %}" class="btn btn-outline-light btn-sm position-relative">
+                        <i class="bi bi-bell"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            {{unread_count}}
+                            <span class="visually-hidden">unread notifications</span>
+                        </span>
+                    </a>                                
+                    <a href="{% url 'logout' %}" class="btn btn-outline-light btn-sm">Logout</a>
+                </div>
+                {% else %}
+                <a href="{% url 'login' %}" class="btn btn-outline-light btn-sm me-2">Login</a>
+                <a href="{% url 'register' %}" class="btn btn-outline-light btn-sm">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <h1>Welcome to Our Library</h1>
+        <p>Explore a world of books and exciting subscription plans.</p>
+        <a href="{% url 'subscription_home' %}" class="btn btn-custom btn-lg">Subscriptions</a>
+    </div>
+
+    <!-- Books Section -->
+    <div class="container my-5">
+        {% if messages %}
+        <div class="alert alert-success">
+            {% for message in messages %}
+            <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <h2 class="mb-4 text-center">Available Books</h2>
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            {% for book in view_books %}
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ book.book_title }}</h5>
+                        <p class="card-text">Author: {{ book.author }}</p>
+                        <p class="card-text">Price: ₹{{ book.price }}</p>
+                        <p class="card-text">Rent Price: ₹{{ book.rent_price }}</p>
+                        <p class="card-text">Genre: {{ book.category }}</p>
+                        
+                        {% if book in rented_books %}
+                            <a href="{% url 'reading_interface' book.id %}" class="btn btn-dark">Read Book</a>
+                        {% else %}
+                            <a href="{% if user.is_authenticated %}{% url 'rent_book' book.id %}{% else %}{% url 'login' %}{% endif %}" class="btn btn-dark">Rent Book</a>
+                            <a href="{% url 'purchase_book' book.id %}" class="btn btn-dark">Purchase Book</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        {% if already_rented %}
+            document.getElementById('customAlert').style.display = 'block';
+            setTimeout(function() {
+                document.getElementById('customAlert').style.display = 'none';
+            }, 5000);  // Hide after 5 seconds
+        {% endif %}
+    </script>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 Library System. <a href="#">Terms &amp; Conditions</a> | <a href="#">Privacy Policy</a></p>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> {% endcomment %}
+
+{% comment %} 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Home</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa; /* Light gray background */
+            color: #212529; /* Dark text for readability */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background-color: #343a40; /* Dark gray navbar */
+        }
+
+        .navbar-brand, .nav-link {
+            color: #ffffff !important; /* White text on navbar */
+        }
+
+        .nav-link:hover {
+            background-color: #495057; /* Slightly lighter gray on hover */
+            border-radius: 5px;
+        }
+
+        .hero-section {
+            background-color: #343a40; /* Dark gray background */
+            color: #ffffff; /* White text */
+            padding: 40px;
+            text-align: center;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+        }
+
+        .hero-section h1 {
+            font-size: 2.8rem;
+        }
+
+        .btn-custom {
+            background-color: #ffffff; /* White button */
+            color: #343a40; /* Dark gray text */
+            border: 2px solid #343a40;
+        }
+
+        .btn-custom:hover {
+            background-color: #343a40; /* Dark gray button on hover */
+            color: #ffffff; /* White text on hover */
+        }
+
+        .card {
+            border: 1px solid #343a40; /* Dark gray border for card */
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Subtle shadow */
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            color: #343a40; /* Dark gray card title */
+        }
+
+        footer {
+            background-color: #343a40; /* Dark gray footer */
+            color: #ffffff; /* White text */
+            text-align: center;
+            padding: 10px;
+            margin-top: auto; /* Push footer to bottom */
+        }
+
+        footer a {
+            color: #ffffff; /* White links */
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline; /* Underline on hover */
+        }
+
+        .custom-alert {
+            position: fixed;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #f44336; /* Red background */
+            color: #ffffff; /* White text */
+            padding: 15px 30px;
+            border-radius: 5px;
+            display: none;  /* Initially hidden */
+            z-index: 9999;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #343a40; /* Dark gray */
+        }
+
+        .icon-button {
+            background: none;
+            border: none;
+            color: #343a40;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .icon-button i {
+            font-size: 1.5rem;
+            margin-right: 5px;
+        }
+
+        .icon-button:hover {
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <!-- Custom Alert Box -->
+    <div id="customAlert" class="custom-alert">
+        You have already rented this book.
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Library</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'home_path' %}">Home</a>
+                    </li>
+                </ul>
+                {% if user.is_authenticated %}
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'rented_books' %}">My Rented Books</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'view_subscriptions_plans_user' %}">My Plans</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <span class="text-white me-3">Welcome, {{ request.user.first_name }} {{ request.user.last_name }}</span>
+                    <a href="{% url 'notifications' %}" class="icon-button position-relative">
+                        <i class="bi bi-bell"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            {{unread_count}}
+                            <span class="visually-hidden">unread notifications</span>
+                        </span>
+                    </a>
+                    <a href="{% url 'logout' %}" class="btn btn-outline-light btn-sm ms-2">Logout</a>
+                </div>
+                {% else %}
+                <a href="{% url 'login' %}" class="btn btn-outline-light btn-sm me-2">Login</a>
+                <a href="{% url 'register' %}" class="btn btn-outline-light btn-sm">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <h1>Welcome to Our Library</h1>
+        <p>Explore a world of books and exciting subscription plans.</p>
+        <a href="{% url 'subscription_home' %}" class="btn btn-custom btn-lg">Subscriptions</a>
+    </div>
+
+    <!-- Books Section -->
+    <div class="container my-5">
+        {% if messages %}
+        <div class="alert alert-success">
+            {% for message in messages %}
+            <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <h2 class="section-title">Available Books</h2>
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            {% for book in view_books %}
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ book.book_title }}</h5>
+                        <p class="card-text">Author: {{ book.author }}</p>
+                        <p class="card-text">Price: ₹{{ book.price }}</p>
+                        <p class="card-text">Rent Price: ₹{{ book.rent_price }}</p>
+                        <p class="card-text">Genre: {{ book.category }}</p>
+                        
+                        {% if book in rented_books %}
+                            <a href="{% url 'reading_interface' book.id %}" class="btn btn-dark">Read Book</a>
+                        {% else %}
+                            <a href="{% if user.is_authenticated %}{% url 'rent_book' book.id %}{% else %}{% url 'login' %}{% endif %}" class="btn btn-dark">Rent Book</a>
+                            <a href="{% url 'purchase_book' book.id %}" class="btn btn-dark">Purchase Book</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        {% if already_rented %}
+            document.getElementById('customAlert').style.display = 'block';
+            setTimeout(function() {
+                document.getElementById('customAlert').style.display = 'none';
+            }, 5000);  // Hide after 5 seconds
+        {% endif %}
+    </script>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 Library System. <a href="#">Terms &amp; Conditions</a> | <a href="#">Privacy Policy</a></p>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+ {% endcomment %}
+
+
+<!DOCTYPE html>
+ <html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Home</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    
+<style>
+        body {
+            background-color: #; /* Light gray background */
+            color: #212529; /* Dark text for readability */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            font-family: "Lato", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+        }
+
+        .navbar {
+            background-color: #000; /* Dark gray navbar */
+        }
+
+        .navbar-brand, .nav-link {
+            color: #ffffff !important; /* White text on navbar */
+        }
+
+        .nav-link:hover {
+            background-color: #495057; /* Slightly lighter gray on hover */
+            border-radius: 5px;
+        }
+
+        .hero-section {
+            background-color: #000; /* Dark gray background */
+            color: #ffffff; /* White text */
+            padding: 40px;
+            text-align: center;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+        }
+
+        .hero-section h1 {
+            font-size: 2.8rem;
+        }
+
+        .btn-custom {
+            background-color: #ffffff; /* White button */
+            color: #343a40; /* Dark gray text */
+            border: 1px solid #343a40;
+        }
+
+        .btn-custom:hover {
+            background-color: #343a40; /* Dark gray button on hover */
+            color: #ffffff; /* White text on hover */
+        }
+
+        .card {
+            border: 1px solid #343a40; /* Dark gray border for card */
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Subtle shadow */
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            color: #343a40; /* Dark gray card title */
+        }
+
+        footer {
+            background-color: #000; /* Dark gray footer */
+            color: #ffffff; /* White text */
+            text-align: center;
+            padding: 10px;
+            margin-top: auto; /* Push footer to bottom */
+        }
+
+        footer a {
+            color: #ffffff; /* White links */
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline; /* Underline on hover */
+        }
+
+        .custom-alert {
+            position: fixed;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #f44336; /* Red background */
+            color: #ffffff; /* White text */
+            padding: 15px 30px;
+            border-radius: 5px;
+            display: none;  /* Initially hidden */
+            z-index: 9999;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #343a40; /* Dark gray */
+        }
+
+        .icon-button {
+            background: none;
+            border: none;
+            color: #343a40;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .icon-button i {
+            font-size: 1.5rem;
+            margin-right: 5px;
+        }
+
+        .icon-button:hover {
+            color: #495057;
+        }
+        .icon-button i {
+            font-size: 1.2rem; /* Smaller icon size */
+            color: #ffffff; /* Ensures icons are white */
+        }
+        
+        .icon-button:hover i {
+            color: #adb5bd; /* Light gray color on hover */
+        }
+        
+        .navbar-brand, .nav-link, .text-white {
+            font-size: 0.9rem; /* Smaller text for the top bar */
+        }
+        
+        .navbar .btn-sm {
+            font-size: 0.85rem; /* Adjust button font size for consistency */
+        }
+
+   
+        .popup-message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #28a745; /* Green background */
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            z-index: 1000;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    
+        .popup-box.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    
+        .popup-box.info {
+            background-color: #ffc107; /* Yellow for info */
+        }
+
+        .btn-outline-danger {
+            border-color: #dc3545;
+            color: #dc3545;
+            border-radius: 1px;
+        }
+        
+        .btn-outline-danger:hover {
+            background-color: #dc3545;
+            color: #fff;
+            border-radius: 1px;
+        }
+
+        .btn-dark {
+            border-radius: 1px; /* Set radius to 1px for square-like buttons */
+        }
+    </style>
+</head>
+<body>
+    <!-- Custom Alert Box -->
+    <div id="customAlert" class="custom-alert">
+        You have already rented this book.
+    </div>
+
+   <!-- Displaying Messages -->
+{% comment %} {% if messages %}
+<div id="messagePopup" class="alert alert-success" style="display:none;">
+    {% for message in messages %}
+        <p>{{ message }}</p>
+    {% endfor %}
+</div>
+{% endif %} {% endcomment %}
+
+
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Library</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'home_path' %}">Home</a>
+                    </li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <form class="d-flex" method="GET" action="">
+                        <input class="form-control form-control-sm me-2" type="search" placeholder="Search by title or authors" aria-label="Search" name="query" value="{{ query }}">
+                        <button class="btn btn-outline-light btn-sm" type="submit">Search</button>
+                    </form>
+                </ul>
+                {% if user.is_authenticated %}
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'rented_books' %}">My Rented Books</a>
+                    </li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'purchase' %}">My Purchase</a>
+                    </li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'view_subscriptions_plans_user' %}">My Plans</a>
+                    </li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                </ul>
+                {% comment %} <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'view_subscriptions_plans_user' %}">My Plans</a>
+                    </li>
+                </ul> {% endcomment %}
+                <div class="d-flex align-items-center">
+                    <span class="text-white me-3">Welcome, {{ request.user.first_name }} {{ request.user.last_name }}</span>
+                   {% comment %} <a href="{% url 'view_cart' %}" class="icon-button position-relative">
+                        <i class="bi bi-cart-fill text-white"></i>
+                    </a>  {% endcomment %}
+                    <a href="{% url 'wishlist' %}"  class="icon-button position-relative ms-3">
+                        <i class="bi bi-heart-fill text-white"></i>
+                    </a>
+                    <a href="{% url 'notifications' %}" class="icon-button position-relative ms-3">
+                        <i class="bi bi-bell-fill text-white"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            {{ unread_count }}
+                            <span class="visually-hidden">unread notifications</span>
+                        </span>
+                    </a>
+                    <!-- Profile Icon -->
+    <a href="{% url 'user_view' %}" class="icon-button ms-3">
+        <i class="bi bi-person-circle text-white"></i>
+    </a>
+
+                    <a href="{% url 'logout' %}" class="btn btn-outline-light btn-sm ms-2">Logout</a>
+                </div>
+                {% else %}
+                <a href="{% url 'login' %}" class="btn btn-outline-light btn-sm me-2">Login</a>
+                <a href="{% url 'register' %}" class="btn btn-outline-light btn-sm">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    {% comment %} <div class="hero-section">
+        <h1>Welcome to Our Library</h1>
+        <p>Explore a world of books and exciting subscription plans.</p>
+        <a href="{% url 'subscription_home' %}" class="btn btn-custom btn-lg">Subscriptions</a>
+    </div> {% endcomment %}
+
+    <!-- Books Section -->
+   
+
+        <!-- Hidden Popup Message Div (Initially hidden) -->
+<div id="wishlistPopup" class="alert alert-success" style="display:none;">
+    <p id="wishlistMessage"></p>
+</div>
+<div class="container my-5">
+    {% if messages %}
+    <div class="alert alert-success">
+        {% for message in messages %}
+        <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+        <h2 class="section-title">Available Books</h2>
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            {% for book in view_books %}
+            <div class="col">
+                <a href="{% url 'book_details' book.id %}" class="text-decoration-none text-dark" >
+               
+                <div class="card h-100">
+                    <div class="card-body">
+                        <img src="{{ book.book_image.url }}" class="card-img-top w-50" alt="{{ book.title }}">
+                        <h5 class="card-title">{{ book.book_title }}</h5>
+                        <p class="card-text">Author: {{ book.author }}</p>
+                        <p class="card-text">Price: ₹{{ book.price }}</p>
+                        
+                    {% if book in wishlist_books %}
+                    <a href="{% url 'remove_from_wishlist' book.id %}" class="btn btn-danger">Remove from Wishlist</a>
+                {% else %}
+                    <a href="{% url 'add_to_wishlist' book.id %}" class="btn btn-outline-danger">Add to Wishlist</a>
+                {% endif %}
+                 {% comment %} <a href="{% url  'add_to_cart' book.id %}" class="btn btn-dark"> <i class="fas fa-shopping-cart">Add to Cart</a></i>  {% endcomment %}
+
+
+                        {% if book in rented_books %}
+                            {% comment %} <a href="{% url 'reading_interface' book.id %}" class="btn btn-dark">Read Book</a> {% endcomment %}
+                        {% else %}
+                            {% comment %} <a href="{% if user.is_authenticated %}{% url 'rent_book' book.id %}{% else %}{% url 'login' %}{% endif %}" class="btn btn-dark">Rent Book</a> {% endcomment %}
+                            {% comment %} <a href="{% url 'purchase_book' book.id %}" class="btn btn-dark">Buy Book</a> {% endcomment %}
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+            
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+   
+    <script>
+        {% comment %} {% if already_rented %}
+            document.getElementById('customAlert').style.display = 'block';
+            setTimeout(function() {
+                document.getElementById('customAlert').style.display = 'none';
+            }, 5000);  // Hide after 5 seconds
+        {% endif %} {% endcomment %}
+        document.addEventListener('DOMContentLoaded', function() {
+            const wishlistButtons = document.querySelectorAll('.wishlist-toggle');
+    
+            wishlistButtons.forEach(button => {
+                button.addEventListener('click', function(event) {
+                    event.preventDefault();  // Prevent the default anchor link behavior
+                    
+                    const bookId = button.getAttribute('data-book-id');
+                    const heartIcon = button.querySelector('i');
+                    
+                    // Toggle heart icon color (red if added, empty if removed)
+                    if (heartIcon.classList.contains('bi-heart')) {
+                        heartIcon.classList.remove('bi-heart');
+                        heartIcon.classList.add('bi-heart-fill', 'text-danger');
+                    } else {
+                        heartIcon.classList.remove('bi-heart-fill', 'text-danger');
+                        heartIcon.classList.add('bi-heart');
+                    }
+    
+                    // Send AJAX request to add/remove the book from the wishlist
+                    fetch(`/add_to_wishlist/${bookId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'added') {
+                            showPopup(`${data.message}`);
+                        } else if (data.status === 'exists') {
+                            showPopup(`${data.message}`);
+                        }
+                    });
+                });
+            });
+
+            <!-- JavaScript to hide the message after 2 seconds -->
+
+    window.onload = function() {
+        const alert = document.getElementById('message-alert');
+        if (alert) {
+            setTimeout(function() {
+                alert.style.display = 'none';
+            }, 2000); // 2000ms = 2 seconds
+        }
+    }
+
+    
+{% comment %} 
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add event listeners to heart icons
+    const wishlistIcons = document.querySelectorAll('.wishlist-toggle');
+
+    wishlistIcons.forEach(icon => {
+        icon.addEventListener('click', function(event) {
+            // Prevent default form submission (if it's a form)
+            event.preventDefault();
+
+            const bookId = icon.getAttribute('data-book-id');
+            const isAdded = icon.querySelector('i').classList.contains('bi-heart-fill');
+
+            // If the book is added to wishlist, remove it
+            if (isAdded) {
+                icon.querySelector('i').classList.remove('bi-heart-fill', 'text-danger');
+                icon.querySelector('i').classList.add('bi-heart');
+            } else {
+                // Otherwise, add it to wishlist
+                icon.querySelector('i').classList.remove('bi-heart');
+                icon.querySelector('i').classList.add('bi-heart-fill', 'text-danger');
+            }
+
+            // Send the request to add or remove from wishlist
+            fetch(icon.getAttribute('href'), {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: new URLSearchParams({
+                    'book_id': bookId
+                })
+            }).then(response => response.json())
+              .then(data => {
+                  // Handle response if needed
+              });
+        });
+    });
+});
+         {% endcomment %}
+    </script>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 Library System. <a href="#">Terms &amp; Conditions</a> | <a href="#">Privacy Policy</[_{{{CITATION{{{_1{](https://github.com/litposthinker/Tugas-aydin/tree/d488355075682b7260e2bc77502204a9221c1596/portofolio-gue%2Fdetail.php)[_{{{CITATION{{{_2{](https://github.com/Agilbay04/VLMS-JTI/tree/ac9dee3ecf421da62ff9cf5b76dee9de633b83de/bootstrap-4.6.0%2Fsite%2Fcontent%2Fdocs%2F4.6%2Fcomponents%2Fnavbar.md)[_{{{CITATION{{{_3{](https://github.com/lucathree/lucathree.github.io/tree/69d9a3b4dbdf5bb88afbdd94858cfb95b2aa75cc/_posts%2F2021%2F2021-07-28-1-miniproject3.md)[_{{{CITATION{{{_4{](https://github.com/Maviism/cek-buku/tree/738b459a10acfbb0c71493af7dc6308210c6194f/resources%2Fviews%2Flayouts%2Fnavbar.blade.php)
+
+
+      

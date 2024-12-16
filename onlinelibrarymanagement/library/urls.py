@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from django.contrib.auth.views import PasswordChangeView,PasswordChangeDoneView
+from django.contrib.auth import views as auth_views
 
 urlpatterns =[
     path('',views.home,name='home_path'),
@@ -41,6 +43,39 @@ urlpatterns =[
     path('subscription/',views.subscription_home,name="subscription_home"),
     path('purchase_book/<int:pk>/',views.purchase_book,name="purchase_book"),
     path("notifications/",views.notifications,name="notifications"),
+    # path('read_book/<int:book_id>/', views.reading_interface, name='reading_interface'),
+    # path('book/<int:book_id>/pdf/', views.serve_pdf, name='serve_pdf'),
+
+    # path('book/<int:book_id>/read/', views.reading_interface, name='reading_interface'),
+    path('my_rented_books/', views.rented_books, name='rented_books'),
+    # path('book/<int:book_id>/read/', views.save_pdf_as_images, name='serve_pdf'),
+    path('book/<int:book_id>/read/', views.reading_interface, name='reading_interface'),
+    # path('book/<int:book_id>/read/', views.reading_interface, name='reading_interface'),
+    path('edit_profile/',views.edit_profile,name="profile"),
+    path("view_user_profile/",views.user_details,name="user_view"),
+    path('view_purchase/',views.view_purchased_books,name="purchase"),
+
+    path('wishlist/add/<int:book_id>/', views.add_to_wishlist, name='add_to_wishlist'),
+    path('wishlist/remove/<int:book_id>/', views.remove_from_wishlist, name='remove_from_wishlist'),
+    path('wishlist/', views.view_wishlist, name='wishlist'),
+    path('book_view/<int:pk>',views.book_view,name="book_details"),
+
+    path('subscribe_upgrade/<int:pk>/',views.subscribe_upgrade,name='subscribe_upgrade'),
+    # path('fetch-upgradeable-plans/', views.fetch_upgradeable_plans, name='fetch_upgradeable_plans'),
+    path('purchase_invoice/',views.purchase_invoice,name="purchase_invoice"),
+
+    path('cart/add/<int:book_id>/', views.add_to_cart, name='add_to_cart'),
+    path('cart/remove/<int:item_id>/', views.remove_from_cart, name='remove_from_cart'),
+    path('cart/', views.view_cart, name='view_cart'),
+    path('cart/checkout/', views.checkout, name='checkout'),
+     path('process-payment/<int:total_amount>/', views.process_payments, name='process_payments'),
+    path('accounts/password-change/', auth_views.PasswordChangeView.as_view(),name='password_change'),
+    path('accounts/password-change/done',auth_views.PasswordChangeDoneView.as_view(), name="password_change_done"),
+    path('admin_dashboard/manage_users/',views.user_list, name="admin_manage_user"),
+     path('checkout/', views.checkout, name='checkout'),
+    
+    
+    
     # path('notify/',views.notification_view,name="notifications")
 
 

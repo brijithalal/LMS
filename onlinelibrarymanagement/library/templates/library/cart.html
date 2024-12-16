@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #ffffff; /* White background */
+            color: #212529; /* Dark text color */
+            font-family: "Arial", sans-serif;
+            padding: 40px 20px;
+        }
+
+        h2 {
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        table {
+            background-color: #fff;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .table th, .table td {
+            vertical-align: middle;
+        }
+
+        .btn {
+            margin: 5px;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            border: none;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            border: none;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .go-home-btn {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            padding: 12px 25px;
+            background-color: #343a40; /* Black color */
+            color: #fff;
+            border: none;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .go-home-btn:hover {
+            background-color: #23272b; /* Darker shade of black */
+        }
+
+        .go-home-btn {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            padding: 8px 15px; /* Decreased padding for a smaller button */
+            width: 200px; /* Set a fixed width */
+            background-color: #343a40; /* Black color */
+            color: #fff;
+            border: none;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            margin-left: auto;
+            margin-right: auto; /* Center the button */
+        }
+        
+        .go-home-btn:hover {
+            background-color: #23272b; /* Darker shade of black */
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h2>Your Cart</h2>
+        <table class="table">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Book</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr>
+                    <td>{{ item.book.book_title }}</td>
+                    <td>₹{{ item.book.price }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>₹{{ item.get_total_price }}</td>
+                    <td>
+                        <a href="{% url 'remove_from_cart' item.id %}" class="btn btn-danger btn-sm">Remove</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <h3>Total Price: ₹{{ total_price }}</h3>
+        <a href="{% url 'checkout' %}" class="btn btn-success">Checkout</a>
+    </div>
+
+    <!-- Go to Home Button -->
+    <a href="{% url 'home_path' %}" class="go-home-btn">Go to Home</a>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

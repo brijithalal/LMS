@@ -3,11 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
     <title>Rental Success</title>
+    <style>
+        body {
+            background-color: #ffffff;
+            color: #212529;
+            font-family: "Lato", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+            text-align: center;
+            padding: 50px;
+        }
+
+        h1 {
+            color: #000000;
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+
+        p {
+            color: #333333;
+            font-size: 1.2rem;
+        }
+
+        a {
+            color: #000000;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        a:hover {
+            color: #007bff;
+            text-decoration: underline;
+        }
+
+        /* Button styling */
+        .btn {
+            background-color: #000000;
+            color: #ffffff;
+            padding: 10px 20px;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            background-color: #333333;
+        }
+    </style>
 </head>
 <body>
+
     <h1>Rental Success</h1>
     <p>Your rental has been successfully completed!</p>
-    <a href="{% url 'home_path' %}">Go to Home</a>
+    <a href="{% url 'home_path' %}" class="btn">Go to Home</a>
+
 </body>
 </html>
